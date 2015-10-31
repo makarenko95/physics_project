@@ -24,7 +24,10 @@ SOURCES += main.cpp\
     src/Math/Constants.cpp \
     src/Math/Random.cpp \
     src/Misc/Timer.cpp \
-    src/CollisionBox.cpp
+    src/CollisionBox.cpp \
+    src/Models/billiardmodel.cpp \
+    src/Views/billiardview.cpp \
+    src/Views/qtbilliardview.cpp
 
 HEADERS  += application.h \
     src/Geometry/Box.h \
@@ -47,7 +50,10 @@ HEADERS  += application.h \
     src/Misc/PriorityHeap.h \
     src/Misc/Timer.h \
     src/Misc/Utility.h \
-    src/CollisionBox.h
+    src/CollisionBox.h \
+    src/Models/billiardmodel.h \
+    src/Views/billiardview.h \
+    src/Views/qtbilliardview.h
 
 INCLUDEPATH += src
 

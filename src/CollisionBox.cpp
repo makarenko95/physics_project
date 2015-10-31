@@ -157,33 +157,6 @@ CollisionBox<ScalarParam, dimensionParam>::queueCollisions(
         }
     }
 
-	/* Check for collision with the spherical obstacle: */
-    Vector d = particle1->position - spherePosition;
-    d -= particle1->velocity * particle1->timeStamp;
-    d += sphereVelocity * sphereTimeStamp;
-    Vector vd = particle1->velocity - sphereVelocity;
-    Scalar vd2 = Geometry::sqr(vd);
-
-    if (vd2 > Scalar(0)) // Are the two particles' velocities different?
-    {
-        /* Solve the quadratic equation determining possible collisions: */
-        Scalar ph = (d * vd) / vd2;
-        Scalar q = (Geometry::sqr(d) - Math::sqr(particleRadius + sphereRadius)) / vd2;
-        Scalar det = Math::sqr(ph) - q;
-
-        if (det >= Scalar(0)) // Are there any solutions?
-		{
-            /* Calculate the first solution (only that can be valid): */
-            Scalar collisionTime = -ph - Math::sqrt(det);
-
-			/* If the collision is valid, i.e., occurs past the last update of both particles, queue it: */
-            if (collisionTime > particle1->timeStamp && collisionTime > sphereTimeStamp && collisionTime <= timeStep)
-            {
-                collisionQueue.insert(CollisionEvent(collisionTime, particle1, sphereTimeStamp));
-			}
-		}
-    }
-
 	/* Check for collision with any other particle: */
     GridCell *baseCell = particle1->cell;
 
@@ -224,17 +197,12 @@ template <class ScalarParam, int dimensionParam>
 inline
 CollisionBox<ScalarParam, dimensionParam>::CollisionBox(
     const typename CollisionBox<ScalarParam, dimensionParam>::Box &sBoundaries,
-    typename CollisionBox<ScalarParam, dimensionParam>::Scalar sParticleRadius,
-    typename CollisionBox<ScalarParam, dimensionParam>::Scalar sSphereRadius)
+    typename CollisionBox<ScalarParam, dimensionParam>::Scalar sParticleRadius)
     : boundaries(sBoundaries),
       numNeighbors(0), neighborOffsets(0), cellChangeMasks(0),
       particleRadius(sParticleRadius), particleRadius2(Math::sqr(particleRadius)),
       attenuation(1),
-      numParticles(0),
-      spherePosition(Point::origin),
-      sphereVelocity(Vector::zero),
-      sphereRadius(sSphereRadius), sphereRadius2(Math::sqr(sphereRadius)),
-      sphereTimeStamp(0)
+      numParticles(0)
 {
 	/* Calculate optimal number of cells and cell sizes: */
 	Index numOuterCells;
@@ -312,16 +280,6 @@ CollisionBox<ScalarParam, dimensionParam>::CollisionBox(
 			}
 		}
     }
-
-	/* Position the spherical obstacle: */
-    spherePosition[0] = boundaries.min[0] - sphereRadius - Scalar(10);
-
-    for (int i = 1; i < dimension; ++i)
-    {
-        spherePosition[i] = Math::div2(boundaries.min[i] + boundaries.max[i]);
-	}
-
-    sphereVelocity[0] = Scalar(5);
 }
 
 template <class ScalarParam, int dimensionParam>
@@ -401,17 +359,6 @@ CollisionBox<ScalarParam, dimensionParam>::addParticle(
 template <class ScalarParam, int dimensionParam>
 inline
 void
-CollisionBox<ScalarParam, dimensionParam>::moveSphere(
-    const typename CollisionBox<ScalarParam, dimensionParam>::Point &newPosition,
-    typename CollisionBox<ScalarParam, dimensionParam>::Scalar timeStep)
-{
-	/* Calculate the sphere's velocity for this time step: */
-    sphereVelocity = (newPosition - spherePosition) / timeStep;
-}
-
-template <class ScalarParam, int dimensionParam>
-inline
-void
 CollisionBox<ScalarParam, dimensionParam>::simulate(
     typename CollisionBox<ScalarParam, dimensionParam>::Scalar timeStep)
 {
@@ -463,25 +410,6 @@ CollisionBox<ScalarParam, dimensionParam>::simulate(
 
             break;
 
-        case CollisionEvent::SphereCollision:
-            if (nc.particle1->timeStamp == nc.timeStamp1 && sphereTimeStamp == nc.timeStamp2)
-            {
-                /* Bounce the two particles off each other: */
-                nc.particle1->position += nc.particle1->velocity * (nc.collisionTime - nc.timeStamp1);
-                nc.particle1->timeStamp = nc.collisionTime;
-                Point sp = spherePosition + sphereVelocity * (nc.collisionTime - nc.timeStamp2);
-                Vector d = sp - nc.particle1->position;
-                Scalar dLen2 = Geometry::sqr(d);
-                Vector v1 = d * ((nc.particle1->velocity * d) / dLen2);
-                Vector v2 = d * ((sphereVelocity * d) / dLen2);
-                nc.particle1->velocity += Scalar(2) * (v2 - v1);
-
-                /* Re-calculate all collisions of the particle: */
-                queueCollisions(nc.particle1, timeStep, true, 0, collisionQueue);
-            }
-
-            break;
-
         case CollisionEvent::ParticleCollision:
             if (nc.particle1->timeStamp == nc.timeStamp1 && nc.particle2->timeStamp == nc.timeStamp2)
             {
@@ -527,8 +455,4 @@ CollisionBox<ScalarParam, dimensionParam>::simulate(
             pIt->timeStamp = Scalar(0);
 		}
     }
-
-	/* Update the collision sphere to the end of the time step: */
-    spherePosition += sphereVelocity * (timeStep - sphereTimeStamp);
-    sphereTimeStamp = Scalar(0);
 }

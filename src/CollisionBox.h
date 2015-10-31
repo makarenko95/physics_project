@@ -164,7 +164,7 @@ private:
         /* Embedded classes: */
         enum CollisionType   // Two kinds of collision: particle/wall and particle/particle, and one pseudo-collision
         {
-            CellChange, WallCollision, SphereCollision, ParticleCollision
+            CellChange, WallCollision, ParticleCollision
         };
 
         /* Elements: */
@@ -190,13 +190,6 @@ private:
             : collisionType(WallCollision), collisionTime(sCollisionTime),
               particle1(sParticle1), timeStamp1(particle1->timeStamp),
               wallNormal(sWallNormal)
-        {
-        }
-
-        CollisionEvent(Scalar sCollisionTime, Particle *sParticle1, Scalar sphereTimeStamp)
-            : collisionType(SphereCollision), collisionTime(sCollisionTime),
-              particle1(sParticle1), timeStamp1(particle1->timeStamp),
-              timeStamp2(sphereTimeStamp)
         {
         }
 
@@ -229,10 +222,6 @@ private:
     Scalar attenuation; // Factor by how much particles slow down over the course of one time unit; ==1: no slowdown
     size_t numParticles; // Number of particles in the collision box
     ParticleList particles; // List of all particles in the collision box
-    Point spherePosition; // Position of an additional spherical obstacle
-    Vector sphereVelocity; // Velocity of spherical obstacle
-    Scalar sphereRadius, sphereRadius2; // Radius and squared radius of spherical obstacle
-    Scalar sphereTimeStamp; // Time stamp of spherical obstacle in current time step
 
     /* Private methods: */
     void queueCollisionsInCell(GridCell *cell, Particle *particle1, Scalar timeStep, bool symmetric, Particle *otherParticle, CollisionQueue &collisionQueue);
@@ -243,7 +232,7 @@ private:
     /* Constructors and destructors: */
 public:
 
-    CollisionBox(const Box &sBoundaries, Scalar sParticleRadius, Scalar sSphereRadius); // Creates box of given size, for particles of given radius
+    CollisionBox(const Box &sBoundaries, Scalar sParticleRadius); // Creates box of given size, for particles of given radius
     ~CollisionBox(void); // Destroys collision box and all particles
 
     /* Methods: */
@@ -256,8 +245,6 @@ public:
 
     bool addParticle(const Point &newPosition, const Vector &newVelocity); // Adds a new particle to the collision box; returns false if particle could not be added due to overlap with existing particles
 
-    void moveSphere(const Point &newPosition, Scalar timeStep); // Moves the spherical obstacle to the given position at the end of the next time step
-
     void simulate(Scalar timeStep); // Advances simulation time by given time step
 
     const ParticleList &getParticles(void) const // Returns the list of particles
@@ -265,10 +252,6 @@ public:
         return particles;
     }
 
-    const Point &getSphere(void) const // Returns the collision sphere's current position
-    {
-        return spherePosition;
-    }
 };
 
 #ifndef COLLISIONBOX_IMPLEMENTATION

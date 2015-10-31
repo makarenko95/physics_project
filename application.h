@@ -2,7 +2,8 @@
 #define APPLICATION_H
 
 #include <QWidget>
-#include <CollisionBox.h>
+#include <Models/billiardmodel.h>
+#include <QTimer>
 
 class Application : public QWidget
 {
@@ -11,6 +12,14 @@ class Application : public QWidget
 public:
     Application(QWidget *parent = 0);
     ~Application();
+
+private:
+    BilliardModel model;
+    QTimer * timer;
+    int interval;
+
+public slots:
+    void onTimeOut();
 };
 
 #endif // APPLICATION_H
