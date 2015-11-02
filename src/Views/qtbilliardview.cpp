@@ -6,7 +6,7 @@
 QtBilliardView::QtBilliardView(QWidget *parent)
     : QWidget(parent), model(NULL)
 {
-    setFixedSize(100, 100);
+    setFixedSize(1000, 1000);
 }
 
 void QtBilliardView::Update(const BilliardModel & model)
@@ -30,7 +30,7 @@ void QtBilliardView::paintEvent(QPaintEvent *)
         auto min = boundaries.min;
         auto max = boundaries.max;
 
-        setFixedSize(max[0] + 1, max[1] + 1);
+       // setFixedSize(max[0] + 1, max[1] + 1);
 
         QPainter painter(this);
 
@@ -41,13 +41,33 @@ void QtBilliardView::paintEvent(QPaintEvent *)
 
         const BilliardModel::MyCollisionBox::ParticleList & particles = collisionBox->getParticles();
 
-        for (auto it = particles.begin(); it != particles.end(); it++)
+
+        auto it = particles.begin();
+
+        {
+            auto pos = it->getPosition();
+            double r = model->getRadius();
+
+            painter.setPen(Qt::red);
+            painter.drawEllipse(QPointF(pos[0], pos[1]), r, r);
+        }
+
+        painter.setPen(Qt::black);
+        it++;
+
+        for (; it != particles.end(); it++)
         {
             auto pos = it->getPosition();
             double r = model->getRadius();
 
             painter.drawEllipse(QPointF(pos[0], pos[1]), r, r);
         }
+
+        painter.setPen(Qt::red);
+
+        int pistonPos = collisionBox->getPistonPos();
+
+        painter.drawLine(pistonPos, 0, pistonPos, max[1]);
 
     }
 }
