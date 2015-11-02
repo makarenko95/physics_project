@@ -112,8 +112,11 @@ CollisionBox<ScalarParam, dimensionParam>::queueCollisions(
     typename CollisionBox<ScalarParam, dimensionParam>::Particle *otherParticle,
     typename CollisionBox<ScalarParam, dimensionParam>::CollisionQueue &collisionQueue)
 {
-	/* Calculate the particle's position at the end of this time step: */
+    /* Calculate the particle's position at the end of this time step: */
     Point newPosition = particle1->position + particle1->velocity * (timeStep - particle1->timeStamp);
+
+    /* Calculate the piston's position at the end of this time step: */
+    Scalar newPistonPosition = pistonPos + pistonVelocity * (timeStep - pistonTimeStamp);
 
 	/* Check for crossing of cell borders: */
     queueCellChanges(particle1, newPosition, timeStep, collisionQueue);
@@ -156,6 +159,10 @@ CollisionBox<ScalarParam, dimensionParam>::queueCollisions(
             collisionQueue.insert(CollisionEvent(collisionTime, particle1, wallNormal));
         }
     }
+
+    /* Check for collision with piston */
+
+    queuePistonCollision(particle1, timeStep, collisionQueue);
 
 	/* Check for collision with any other particle: */
     GridCell *baseCell = particle1->cell;
@@ -202,7 +209,12 @@ CollisionBox<ScalarParam, dimensionParam>::CollisionBox(
       numNeighbors(0), neighborOffsets(0), cellChangeMasks(0),
       particleRadius(sParticleRadius), particleRadius2(Math::sqr(particleRadius)),
       attenuation(1),
-      numParticles(0)
+      numParticles(0),
+      pistonPos(0),
+      pistonStart(0),
+      pistonEnd(boundaries.max[0]),
+      pistonVelocity(0.0),
+      pistonTimeStamp(0.0)
 {
 	/* Calculate optimal number of cells and cell sizes: */
 	Index numOuterCells;
@@ -356,6 +368,88 @@ CollisionBox<ScalarParam, dimensionParam>::addParticle(
 	return true; // Particle succesfully added
 }
 
+template<class ScalarParam, int dimensionParam>
+inline
+void
+CollisionBox<ScalarParam, dimensionParam>::queuePistonChange(
+        typename CollisionBox<ScalarParam, dimensionParam>::Scalar timeStep,
+        typename CollisionBox<ScalarParam, dimensionParam>::CollisionQueue &collisionQueue)
+{
+    Scalar newPos = pistonPos + pistonVelocity * (timeStep - pistonTimeStamp);
+    if (pistonVelocity > 0 && newPos >= pistonEnd)
+    {
+        Scalar collisionTime = pistonTimeStamp + (pistonEnd - pistonPos) / pistonVelocity;
+        collisionQueue.insert(CollisionEvent(collisionTime, pistonTimeStamp));
+    }
+    else if (pistonVelocity < 0 && newPos <= pistonStart)
+    {
+        Scalar collisionTime = pistonTimeStamp + (pistonStart - pistonPos) / pistonVelocity;
+        collisionQueue.insert(CollisionEvent(collisionTime, pistonTimeStamp));
+    }
+}
+
+template<class ScalarParam, int dimensionParam>
+inline
+void
+CollisionBox<ScalarParam, dimensionParam>::queueCollisionsOnPistonChange(
+        typename CollisionBox<ScalarParam, dimensionParam>::Scalar timeStep,
+        typename CollisionBox<ScalarParam, dimensionParam>::CollisionQueue &collisionQueue)
+{
+    for (typename ParticleList::iterator pIt = particles.begin(); pIt != particles.end(); ++pIt)
+    {
+        queuePistonCollision(&(*pIt), timeStep, collisionQueue);
+    }
+
+    queuePistonChange(timeStep, collisionQueue);
+}
+
+template <class ScalarParam, int dimensionParam>
+inline
+void
+CollisionBox<ScalarParam, dimensionParam>::queuePistonCollision(
+    typename CollisionBox<ScalarParam, dimensionParam>::Particle *particle,
+    typename CollisionBox<ScalarParam, dimensionParam>::Scalar timeStep,
+    typename CollisionBox<ScalarParam, dimensionParam>::CollisionQueue &collisionQueue)
+{
+    Point newPosition = particle->position + particle->velocity * (timeStep - particle->timeStamp);
+    Scalar newPistonPosition = pistonPos + pistonVelocity * (timeStep - pistonTimeStamp);
+
+    if (newPosition[0] < newPistonPosition + particleRadius)
+    {
+        Scalar collisionTime = particle->timeStamp +
+            (particle->position[0] - pistonPos - pistonVelocity * (particle->timeStamp - pistonTimeStamp)
+            - particleRadius) /
+            (pistonVelocity - particle->velocity[0]);
+
+        if (collisionTime <= timeStep)
+        {
+            collisionQueue.insert(CollisionEvent(collisionTime, particle));
+        }
+    }
+}
+
+template <class ScalarParam, int dimensionParam>
+inline
+void
+CollisionBox<ScalarParam, dimensionParam>::setPiston(
+    typename CollisionBox<ScalarParam, dimensionParam>::Scalar sPistonStart,
+    typename CollisionBox<ScalarParam, dimensionParam>::Scalar sPistonEnd,
+    typename CollisionBox<ScalarParam, dimensionParam>::Scalar sPistonVelocity)
+{
+    pistonStart = sPistonStart;
+    pistonEnd = sPistonEnd;
+    pistonVelocity = sPistonVelocity;
+}
+
+template <class ScalarParam, int dimensionParam>
+inline
+typename CollisionBox<ScalarParam, dimensionParam>::Scalar
+CollisionBox<ScalarParam, dimensionParam>::getPistonPos() const
+{
+    return pistonPos;
+}
+
+
 template <class ScalarParam, int dimensionParam>
 inline
 void
@@ -369,6 +463,8 @@ CollisionBox<ScalarParam, dimensionParam>::simulate(
 	{
         queueCollisions(&(*pIt), timeStep, false, 0, collisionQueue);
     }
+
+    queuePistonChange(timeStep, collisionQueue);
 
 	/* Update all particles' positions and handle all collisions: */
     while (!collisionQueue.isEmpty())
@@ -432,10 +528,31 @@ CollisionBox<ScalarParam, dimensionParam>::simulate(
 			}
 
             break;
+        case CollisionEvent::PistonChangeDirection:
+            if (pistonTimeStamp == nc.timeStamp1)
+            {
+                pistonPos += pistonVelocity * (nc.collisionTime - pistonTimeStamp);
+                pistonTimeStamp = nc.collisionTime;
+                pistonVelocity = -pistonVelocity;
+
+                queueCollisionsOnPistonChange(timeStep, collisionQueue);
+            }
+
+            break;
+
+        case CollisionEvent::PistonCollision:
+            if (nc.particle1->timeStamp == nc.timeStamp1)
+            {
+                nc.particle1->timeStamp = nc.collisionTime;
+                nc.particle1->velocity[0] = 2 * pistonVelocity - nc.particle1->velocity[0];
+                queueCollisions(nc.particle1, timeStep, true, 0, collisionQueue);
+            }
+
+            break;
         }
     }
 
-	/* Update all particles to the end of the timestep: */
+    /* Update all particles and piston to the end of the timestep: */
     if (attenuation != Scalar(1))
     {
         Scalar att = Math::pow(attenuation, timeStep); // Scale attenuation factor for this time step
@@ -455,4 +572,7 @@ CollisionBox<ScalarParam, dimensionParam>::simulate(
             pIt->timeStamp = Scalar(0);
 		}
     }
+
+    pistonPos += pistonVelocity * (timeStep - pistonTimeStamp);
+    pistonTimeStamp = Scalar(0);
 }
