@@ -164,7 +164,7 @@ private:
         /* Embedded classes: */
         enum CollisionType   // Two kinds of collision: particle/wall and particle/particle, and one pseudo-collision
         {
-            CellChange, WallCollision, ParticleCollision
+            CellChange, WallCollision, ParticleCollision, PistonChangeDirection, PistonCollision
         };
 
         /* Elements: */
@@ -200,6 +200,19 @@ private:
         {
         }
 
+        CollisionEvent(Scalar pistonTime, Scalar pistonTimeStamp)
+            : collisionType(PistonChangeDirection), collisionTime(pistonTime),
+              timeStamp1(pistonTimeStamp)
+        {
+        }
+
+        CollisionEvent(Scalar sCollisionTime, Particle *sParticle1)
+            : collisionType(PistonCollision), collisionTime(sCollisionTime),
+              particle1(sParticle1), timeStamp1(particle1->timeStamp)
+        {
+
+        }
+
         /* Methods: */
         friend bool operator<=(const CollisionEvent &e1, const CollisionEvent &e2)
         {
@@ -223,11 +236,20 @@ private:
     size_t numParticles; // Number of particles in the collision box
     ParticleList particles; // List of all particles in the collision box
 
+    Scalar pistonPos;
+    Scalar pistonStart;
+    Scalar pistonEnd;
+    Scalar pistonVelocity;
+    Scalar pistonTimeStamp;
+
     /* Private methods: */
     void queueCollisionsInCell(GridCell *cell, Particle *particle1, Scalar timeStep, bool symmetric, Particle *otherParticle, CollisionQueue &collisionQueue);
     void queueCellChanges(Particle *particle, const Point &newPosition, Scalar timeStep, CollisionQueue &collisionQueue);
     void queueCollisions(Particle *particle1, Scalar timeStep, bool symmetric, Particle *otherParticle, CollisionQueue &collisionQueue);
     void queueCollisionsOnCellChange(Particle *particle1, Scalar timeStep, int cellChangeDirection, CollisionQueue &collisionQueue);
+    void queuePistonChange(Scalar timeStep, CollisionQueue &collisionQueue);
+    void queueCollisionsOnPistonChange(Scalar timeStep, CollisionQueue &collisionQueue);
+    void queuePistonCollision(Particle *particle1, Scalar timeStep, CollisionQueue &collisionQueue);
 
     /* Constructors and destructors: */
 public:
@@ -251,6 +273,10 @@ public:
     {
         return particles;
     }
+
+    void setPiston(Scalar sPistonStart, Scalar sPistonEnd, Scalar sPinstonVelocity);
+
+    Scalar getPistonPos() const;
 
 };
 
