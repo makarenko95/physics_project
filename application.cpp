@@ -3,7 +3,7 @@
 #include <QHBoxLayout>
 
 Application::Application(QWidget *parent)
-    : QWidget(parent), interval(10)
+    : QWidget(parent), interval(15)
 {
     QtBilliardView * view = new QtBilliardView;
     model.AddView(*view);
@@ -18,7 +18,7 @@ Application::Application(QWidget *parent)
 
 Application::~Application()
 {
-    //delete timer;
+    delete timer;
 }
 
 void Application::onTimeOut()
