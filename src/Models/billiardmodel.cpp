@@ -1,15 +1,23 @@
 #include "billiardmodel.h"
 #include "Math/Random.h"
 
+const double RADIUS = 3.0;
+const int SIZE = 700;
+const int PARTICLE_MAX_COUNT = 300;
+const double MAX_VELOCITY = 10.0;
+const double PISTON_START = 0.0;
+const double PISTON_END = 256.0;
+const double PISTON_VELOCITY = 50.0;
+
 BilliardModel::BilliardModel()
-    : radius(5.0), collisionBox(NULL)
+    : radius(RADIUS), collisionBox(NULL)
 {
     MyCollisionBox::Point min, max;
 
     for (int i = 0; i < MyCollisionBox::dimension; ++i)
     {
         min[i] = MyCollisionBox::Scalar(0);
-        max[i] = MyCollisionBox::Scalar(250);
+        max[i] = MyCollisionBox::Scalar(SIZE);
     }
 
     collisionBox = new MyCollisionBox(MyCollisionBox::Box(min, max),
@@ -17,7 +25,7 @@ BilliardModel::BilliardModel()
 
     const MyCollisionBox::Box &boundaries = collisionBox->getBoundaries();
 
-    int numParticles = 100;
+    int numParticles = PARTICLE_MAX_COUNT;
 
     int particleIndex;
 
@@ -34,7 +42,7 @@ BilliardModel::BilliardModel()
             for (int j = 0; j < MyCollisionBox::dimension; ++j)
             {
                 p[j] = boundaries.min[j] + MyCollisionBox::Scalar(radius) + (boundaries.max[j] - boundaries.min[j] - MyCollisionBox::Scalar(radius * 2)) * MyCollisionBox::Scalar(Math::randUniformCC());
-                v[j] = MyCollisionBox::Scalar(Math::randUniformCC(-100.0, 100.0));
+                v[j] = MyCollisionBox::Scalar(Math::randUniformCC(-MAX_VELOCITY, MAX_VELOCITY));
             }
 
             // Try adding the new particle:
@@ -50,6 +58,7 @@ BilliardModel::BilliardModel()
         }
     }
 
+    collisionBox->setPiston(PISTON_START, PISTON_END, PISTON_VELOCITY);
 }
 
 BilliardModel::~BilliardModel()
