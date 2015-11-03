@@ -543,6 +543,7 @@ CollisionBox<ScalarParam, dimensionParam>::simulate(
         case CollisionEvent::PistonCollision:
             if (nc.particle1->timeStamp == nc.timeStamp1)
             {
+                nc.particle1->position += nc.particle1->velocity * (nc.collisionTime - nc.particle1->timeStamp);
                 nc.particle1->timeStamp = nc.collisionTime;
                 nc.particle1->velocity[0] = 2 * pistonVelocity - nc.particle1->velocity[0];
                 queueCollisions(nc.particle1, timeStep, true, 0, collisionQueue);
