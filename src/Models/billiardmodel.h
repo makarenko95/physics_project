@@ -6,6 +6,10 @@
 #include <CollisionBox.h>
 
 #include <list>
+typedef struct ViewerSettings{
+    bool drawTrace;
+    bool drawParticles;
+} ViewerSettings;
 
 class BilliardModel
 {
@@ -22,15 +26,16 @@ public:
     void update(double);
     double getRadius() const;
     void Reload(BilliardModelParams *inputparams);
-
     const MyCollisionBox *getCollisionBox() const;
-
+    void changeViewerSettings_DrawTrace();
+    void changeViewerSettings_DrawParticles();
+    ViewerSettings GetViewerSettings() const;
 private:
 
     std::list<BilliardView *> views;
     double radius;
     MyCollisionBox * collisionBox;
-
+    ViewerSettings settings;
 };
 
 #endif // BILLIARDMODEL_H

@@ -2,7 +2,7 @@
 #include "Math/Random.h"
 
 BilliardModel::BilliardModel(const struct BilliardModel_params params)
-    : radius(params.radius), collisionBox(NULL)
+    : radius(params.radius), collisionBox(NULL),settings({false,true})
 {
     MyCollisionBox::Point min, max;
 
@@ -94,6 +94,7 @@ const BilliardModel::MyCollisionBox *BilliardModel::getCollisionBox() const
 
 void BilliardModel::Reload(BilliardModelParams *inputparams){
     if(collisionBox!=NULL) delete collisionBox;
+    settings = {false,true};
     BilliardModelParams params = {2.0,500,300,20.0,0.0,150.0,50.0};
     if(inputparams!=NULL)
         params =*inputparams;
@@ -145,4 +146,16 @@ void BilliardModel::Reload(BilliardModelParams *inputparams){
     }
 
     collisionBox->setPiston(params.piston_start_position, params.piston_end_position, params.piston_velocity);
+}
+void BilliardModel::changeViewerSettings_DrawParticles()
+{
+    settings.drawParticles = !settings.drawParticles;
+}
+void BilliardModel::changeViewerSettings_DrawTrace()
+{
+    settings.drawTrace = !settings.drawTrace;
+}
+ViewerSettings BilliardModel::GetViewerSettings()const
+{
+    return settings;
 }
