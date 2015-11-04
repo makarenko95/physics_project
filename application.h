@@ -12,7 +12,6 @@ class Application : public QWidget
 public:
     Application(QWidget *parent = 0);
     ~Application();
-
 private:
     BilliardModel model;
     QTimer * timer;
@@ -20,6 +19,7 @@ private:
 
 public slots:
     void onTimeOut();
+    void buttonReloadPressed();
 };
 
 #endif // APPLICATION_H

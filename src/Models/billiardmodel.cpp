@@ -1,23 +1,15 @@
 #include "billiardmodel.h"
 #include "Math/Random.h"
 
-const double RADIUS = 3.0;
-const int SIZE = 700;
-const int PARTICLE_MAX_COUNT = 300;
-const double MAX_VELOCITY = 10.0;
-const double PISTON_START = 0.0;
-const double PISTON_END = 256.0;
-const double PISTON_VELOCITY = 50.0;
-
-BilliardModel::BilliardModel()
-    : radius(RADIUS), collisionBox(NULL)
+BilliardModel::BilliardModel(const struct BilliardModel_params params)
+    : radius(params.radius), collisionBox(NULL)
 {
     MyCollisionBox::Point min, max;
 
     for (int i = 0; i < MyCollisionBox::dimension; ++i)
     {
         min[i] = MyCollisionBox::Scalar(0);
-        max[i] = MyCollisionBox::Scalar(SIZE);
+        max[i] = MyCollisionBox::Scalar(params.size);
     }
 
     collisionBox = new MyCollisionBox(MyCollisionBox::Box(min, max),
@@ -25,7 +17,7 @@ BilliardModel::BilliardModel()
 
     const MyCollisionBox::Box &boundaries = collisionBox->getBoundaries();
 
-    int numParticles = PARTICLE_MAX_COUNT;
+    int numParticles = params.particle_max_count;
 
     int particleIndex;
 
@@ -42,7 +34,7 @@ BilliardModel::BilliardModel()
             for (int j = 0; j < MyCollisionBox::dimension; ++j)
             {
                 p[j] = boundaries.min[j] + MyCollisionBox::Scalar(radius) + (boundaries.max[j] - boundaries.min[j] - MyCollisionBox::Scalar(radius * 2)) * MyCollisionBox::Scalar(Math::randUniformCC());
-                v[j] = MyCollisionBox::Scalar(Math::randUniformCC(-MAX_VELOCITY, MAX_VELOCITY));
+                v[j] = MyCollisionBox::Scalar(Math::randUniformCC(-params.max_particle_velocity, params.max_particle_velocity));
             }
 
             // Try adding the new particle:
@@ -58,7 +50,7 @@ BilliardModel::BilliardModel()
         }
     }
 
-    collisionBox->setPiston(PISTON_START, PISTON_END, PISTON_VELOCITY);
+    collisionBox->setPiston(params.piston_start_position, params.piston_end_position, params.piston_velocity);
 }
 
 BilliardModel::~BilliardModel()
@@ -100,3 +92,57 @@ const BilliardModel::MyCollisionBox *BilliardModel::getCollisionBox() const
     return collisionBox;
 }
 
+void BilliardModel::Reload(BilliardModelParams *inputparams){
+    if(collisionBox!=NULL) delete collisionBox;
+    BilliardModelParams params = {2.0,500,300,20.0,0.0,150.0,50.0};
+    if(inputparams!=NULL)
+        params =*inputparams;
+    radius = params.radius;
+    MyCollisionBox::Point min, max;
+
+    for (int i = 0; i < MyCollisionBox::dimension; ++i)
+    {
+        min[i] = MyCollisionBox::Scalar(0);
+        max[i] = MyCollisionBox::Scalar(params.size);
+    }
+
+    collisionBox = new MyCollisionBox(MyCollisionBox::Box(min, max),
+                                      MyCollisionBox::Scalar(radius));
+
+    const MyCollisionBox::Box &boundaries = collisionBox->getBoundaries();
+
+    int numParticles = params.particle_max_count;
+
+    int particleIndex;
+
+    for (particleIndex = 0; particleIndex < numParticles; ++particleIndex)
+    {
+        const int maxNumTries = 200;
+        int tries;
+
+        for (tries = 0; tries < maxNumTries; ++tries)
+        {
+            MyCollisionBox::Point p;
+            MyCollisionBox::Vector v;
+
+            for (int j = 0; j < MyCollisionBox::dimension; ++j)
+            {
+                p[j] = boundaries.min[j] + MyCollisionBox::Scalar(radius) + (boundaries.max[j] - boundaries.min[j] - MyCollisionBox::Scalar(radius * 2)) * MyCollisionBox::Scalar(Math::randUniformCC());
+                v[j] = MyCollisionBox::Scalar(Math::randUniformCC(-params.max_particle_velocity, params.max_particle_velocity));
+            }
+
+            // Try adding the new particle:
+            if (collisionBox->addParticle(p, v))
+            {
+                break;
+            }
+        }
+
+        if (tries == maxNumTries) // Could not add particles after N tries; assume box is full
+        {
+            break;
+        }
+    }
+
+    collisionBox->setPiston(params.piston_start_position, params.piston_end_position, params.piston_velocity);
+}

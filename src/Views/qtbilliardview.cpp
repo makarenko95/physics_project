@@ -6,7 +6,7 @@
 QtBilliardView::QtBilliardView(QWidget *parent)
     : QWidget(parent), model(NULL)
 {
-    setFixedSize(1000, 1000);
+    setFixedSize(800, 600);
 }
 
 void QtBilliardView::Update(const BilliardModel & model)

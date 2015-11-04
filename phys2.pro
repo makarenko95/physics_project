@@ -27,7 +27,9 @@ SOURCES += main.cpp\
     src/CollisionBox.cpp \
     src/Models/billiardmodel.cpp \
     src/Views/billiardview.cpp \
-    src/Views/qtbilliardview.cpp
+    src/Views/qtbilliardview.cpp \
+    src/Control/billiardcontrol.cpp \
+    src/Control/qtbilliardcontrol.cpp
 
 HEADERS  += application.h \
     src/Geometry/Box.h \
@@ -53,7 +55,9 @@ HEADERS  += application.h \
     src/CollisionBox.h \
     src/Models/billiardmodel.h \
     src/Views/billiardview.h \
-    src/Views/qtbilliardview.h
+    src/Views/qtbilliardview.h \
+    src/Control/billiardcontrol.h \
+    src/Control/qtbilliardcontrol.h
 
 INCLUDEPATH += src
 
