@@ -4,6 +4,9 @@
 #include <QWidget>
 #include <QPaintEvent>
 #include "billiardview.h"
+#include <Geometry/Point.h>
+#include <list>
+typedef Geometry::Point<double, 2> Point;
 
 class QtBilliardView : public QWidget,
                        public BilliardView
@@ -16,13 +19,13 @@ public:
 
 protected:
     void paintEvent(QPaintEvent *);
-
 signals:
 
 public slots:
 
 private:
     const BilliardModel * model;
+    std::list<Point> trace;
 };
 
 #endif // QTBILLIARDVIEW_H

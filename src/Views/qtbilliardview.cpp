@@ -4,9 +4,9 @@
 #include <QPainter>
 
 QtBilliardView::QtBilliardView(QWidget *parent)
-    : QWidget(parent), model(NULL)
+    : QWidget(parent), model(NULL), trace()
 {
-    setFixedSize(800, 600);
+    setFixedSize(800, 640);
 }
 
 void QtBilliardView::Update(const BilliardModel & model)
@@ -24,13 +24,13 @@ void QtBilliardView::paintEvent(QPaintEvent *)
 {
     if (model)
     {
+        ViewerSettings settings = model->GetViewerSettings();
         const BilliardModel::MyCollisionBox * collisionBox = model->getCollisionBox();
         const BilliardModel::MyCollisionBox::Box &boundaries = collisionBox->getBoundaries();
 
         auto min = boundaries.min;
         auto max = boundaries.max;
 
-       // setFixedSize(max[0] + 1, max[1] + 1);
 
         QPainter painter(this);
 
@@ -46,23 +46,40 @@ void QtBilliardView::paintEvent(QPaintEvent *)
 
         {
             auto pos = it->getPosition();
+            trace.push_back(pos);
+            while(trace.size()>2000000)
+                trace.pop_front();
             double r = model->getRadius();
 
             painter.setPen(Qt::red);
             painter.drawEllipse(QPointF(pos[0], pos[1]), r, r);
         }
 
-        painter.setPen(Qt::black);
-        it++;
+        if(settings.drawParticles){
+            painter.setPen(Qt::black);
+            it++;
 
-        for (; it != particles.end(); it++)
-        {
-            auto pos = it->getPosition();
-            double r = model->getRadius();
+            for (; it != particles.end(); it++)
+            {
+                auto pos = it->getPosition();
+                double r = model->getRadius();
 
-            painter.drawEllipse(QPointF(pos[0], pos[1]), r, r);
+                painter.drawEllipse(QPointF(pos[0], pos[1]), r, r);
+            }
         }
-
+        painter.setPen(Qt::blue);
+        if(settings.drawTrace)
+        {
+            auto last_pos=*(trace.begin());
+            for(auto it = trace.begin();it!=trace.end();it++){
+                auto current_pos = *it;
+                painter.drawLine(current_pos[0],current_pos[1],last_pos[0],last_pos[1]);
+                last_pos = current_pos;
+            }
+        }
+        else
+            if(trace.size()>0)
+                trace.clear();
         painter.setPen(Qt::red);
 
         int pistonPos = collisionBox->getPistonPos();
