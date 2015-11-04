@@ -4,6 +4,9 @@
 #include <QWidget>
 #include <Control/billiardcontrol.h>
 #include <QPushButton>
+#include <QDoubleSpinBox>
+#include <QSpinBox>
+#include <QLabel>
 
 class QtBilliardControl : public BilliardControl, public QWidget
 {
@@ -13,6 +16,9 @@ public:
 signals:
 
 public slots:
+    void changeName();
+private:
+    QPushButton *stopTimer;
 };
 
 #endif // QTBILLIARDCONTROL_H
