@@ -1,132 +1,260 @@
 #include "qtbilliardcontrol.h"
 #include <QApplication>
-#include <QPalette>
-void QtBilliardControl::changeName()
+
+void QtBilliardControl::createRadiusDialog(QGridLayout * layout)
 {
-    stopTimer->setText("Start");
+    QLabel *labelRadius = new QLabel("Radius", this);
+    labelRadius->setFont(QFont("Times", 14, QFont::Normal));
+
+    layout->addWidget(labelRadius, 0, 0);
+
+    QDoubleSpinBox *radiusSpinBox = new QDoubleSpinBox(this);
+    radiusSpinBox->setMaximum(20.0);
+    radiusSpinBox->setMinimum(1.0);
+    radiusSpinBox->setValue(GetParams().radius);
+    radiusSpinBox->setDecimals(1);
+    radiusSpinBox->setSingleStep(0.5);
+    radiusSpinBox->setFont(QFont("Times", 14, QFont::Normal));
+
+    layout->addWidget(radiusSpinBox, 0, 1);
+
+    connect(radiusSpinBox, SIGNAL(valueChanged(double)), this, SLOT(onRadiusChange(double)));
 }
 
-QtBilliardControl::QtBilliardControl(QWidget *parent):
-    QWidget(parent)
+void QtBilliardControl::createSizeDialog(QGridLayout * layout)
 {
-    QPalette p;
-    QColor c;
-    c.setRgb(255,255,255);
-    p.setColor(backgroundRole(),c);
-    setPalette(p);
-    const int emptyspace=1;
-    const int item_height = 30;
-    const int width = 200;
-    const int height = 640;
-    const int label_width = 100;
-    setFixedSize(width,height);
-    int line_number = 0;
-    //Radius
-    QLabel *label_radius = new QLabel("Radius",this);
-    label_radius->setGeometry(0,line_number*item_height+emptyspace,label_width,item_height-emptyspace);
-    label_radius->setFont(QFont("Times", 14, QFont::Normal));
-    QDoubleSpinBox *radius = new QDoubleSpinBox(this);
-    radius->setMaximum(20.0);
-    radius->setMinimum(1.0);
-    radius->setValue(this->GetParams().radius);
-    radius->setDecimals(1);
-    radius->setSingleStep(0.5);
-    radius->setGeometry(label_width,line_number*item_height+emptyspace,width-label_width,item_height-emptyspace);
-    radius->setFont(QFont("Times", 14, QFont::Normal));
-    connect(radius,SIGNAL(valueChanged(double)),parent,SLOT(radiusChanged(double)));
-    line_number++;
-    //size
-    QLabel *label_size = new QLabel("Size",this);
-    label_size->setGeometry(0,line_number*item_height+emptyspace,label_width,item_height-emptyspace);
-    label_size->setFont(QFont("Times", 14, QFont::Normal));
-    QSpinBox *size = new QSpinBox(this);
-    size->setMaximum(600);
-    size->setMinimum(300);
-    size->setSingleStep(10);
-    size->setValue(this->GetParams().size);
-    size->setGeometry(label_width,line_number*item_height+emptyspace,width-label_width,item_height-emptyspace);
-    size->setFont(QFont("Times", 14, QFont::Normal));
-    connect(size,SIGNAL(valueChanged(int)),parent,SLOT(sizeChanged(int)));
-    line_number++;
-    //particle_num
-    QLabel *label_particle_num = new QLabel("Particle Num",this);
-    label_particle_num->setGeometry(0,line_number*item_height+emptyspace,label_width,item_height-emptyspace);
-    label_particle_num->setFont(QFont("Times", 14, QFont::Normal));
-    QSpinBox *particle_num = new QSpinBox(this);
-    particle_num->setMaximum(5000);
-    particle_num->setMinimum(0);
-    particle_num->setSingleStep(10);
-    particle_num->setValue(this->GetParams().particle_max_count);
-    particle_num->setGeometry(label_width,line_number*item_height+emptyspace,width-label_width,item_height-emptyspace);
-    particle_num->setFont(QFont("Times", 14, QFont::Normal));
-    connect(particle_num,SIGNAL(valueChanged(int)),parent,SLOT(particlenumChanged(int)));
-    line_number++;
-    //max_particle_velocity
-    QLabel *label_max_particle_velocity = new QLabel("Max Vel",this);
-    label_max_particle_velocity->setGeometry(0,line_number*item_height+emptyspace,label_width,item_height-emptyspace);
-    label_max_particle_velocity->setFont(QFont("Times", 14, QFont::Normal));
-    QDoubleSpinBox *max_particle_velocity = new QDoubleSpinBox(this);
-    max_particle_velocity->setMaximum(3000.0);
-    max_particle_velocity->setMinimum(0.0);
-    max_particle_velocity->setValue(this->GetParams().max_particle_velocity);
-    max_particle_velocity->setDecimals(2);
-    max_particle_velocity->setSingleStep(2.5);
-    max_particle_velocity->setGeometry(label_width,line_number*item_height+emptyspace,width-label_width,item_height-emptyspace);
-    max_particle_velocity->setFont(QFont("Times", 14, QFont::Normal));
-    connect(max_particle_velocity,SIGNAL(valueChanged(double)),parent,SLOT(particleVelocityChanged(double)));
-    line_number++;
-    //piston_max_path
-    QLabel *label_piston_max_path = new QLabel("Piston Path",this);
-    label_piston_max_path->setGeometry(0,line_number*item_height+emptyspace,label_width,item_height-emptyspace);
-    label_piston_max_path->setFont(QFont("Times", 14, QFont::Normal));
-    QDoubleSpinBox *piston_max_path = new QDoubleSpinBox(this);
+    QLabel *labelSize = new QLabel("Size", this);
+    labelSize->setFont(QFont("Times", 14, QFont::Normal));
+
+    layout->addWidget(labelSize, 1, 0);
+
+    QSpinBox *sizeSpinBox = new QSpinBox(this);
+    sizeSpinBox->setMaximum(600);
+    sizeSpinBox->setMinimum(300);
+    sizeSpinBox->setSingleStep(10);
+    sizeSpinBox->setValue(GetParams().size);
+    sizeSpinBox->setFont(QFont("Times", 14, QFont::Normal));
+
+    layout->addWidget(sizeSpinBox, 1, 1);
+
+    connect(sizeSpinBox, SIGNAL(valueChanged(int)), this, SLOT(onSizeChange(int)));
+}
+
+void QtBilliardControl::createParticleNumDialog(QGridLayout * layout)
+{
+    QLabel *labelParticleNum = new QLabel("Particle Num",this);
+    labelParticleNum->setFont(QFont("Times", 14, QFont::Normal));
+
+    layout->addWidget(labelParticleNum, 2, 0);
+
+    QSpinBox *particleNumSpinBox = new QSpinBox(this);
+    particleNumSpinBox->setMaximum(5000);
+    particleNumSpinBox->setMinimum(0);
+    particleNumSpinBox->setSingleStep(10);
+    particleNumSpinBox->setValue(GetParams().particle_max_count);
+    particleNumSpinBox->setFont(QFont("Times", 14, QFont::Normal));
+
+    layout->addWidget(particleNumSpinBox, 2, 1);
+
+    connect(particleNumSpinBox, SIGNAL(valueChanged(int)), this, SLOT(onParticleNumChange(int)));
+}
+
+void QtBilliardControl::createMaxParticleVelocityDialog(QGridLayout * layout)
+{
+    QLabel *labelMaxParticleVelocity = new QLabel("Max Velocity", this);
+    labelMaxParticleVelocity->setFont(QFont("Times", 14, QFont::Normal));
+
+    layout->addWidget(labelMaxParticleVelocity, 3, 0);
+
+    QDoubleSpinBox *maxParticleVelocitySpinBox = new QDoubleSpinBox(this);
+    maxParticleVelocitySpinBox->setMaximum(3000.0);
+    maxParticleVelocitySpinBox->setMinimum(0.0);
+    maxParticleVelocitySpinBox->setValue(this->GetParams().max_particle_velocity);
+    maxParticleVelocitySpinBox->setDecimals(2);
+    maxParticleVelocitySpinBox->setSingleStep(2.5);
+    maxParticleVelocitySpinBox->setFont(QFont("Times", 14, QFont::Normal));
+
+    layout->addWidget(maxParticleVelocitySpinBox, 3, 1);
+
+    connect(maxParticleVelocitySpinBox, SIGNAL(valueChanged(double)), this, SLOT(onParticleVelocityChange(double)));
+}
+
+void QtBilliardControl::createPistonMaxPosDialog(QGridLayout *layout)
+{
+    QLabel *labelPistonMaxPath = new QLabel("Piston amplitude", this);
+    labelPistonMaxPath->setFont(QFont("Times", 14, QFont::Normal));
+
+    layout->addWidget(labelPistonMaxPath, 4, 0);
+
+    QDoubleSpinBox *pistonMaxPathSpinBox = new QDoubleSpinBox(this);
     {
-        BilliardModelParams p = this->GetParams();
-        double max_piston_path = fmax(p.size/2,p.size-30*p.radius*p.radius*p.particle_max_count/p.size);
-        piston_max_path->setMaximum(max_piston_path);
+        BilliardModel::Params p = GetParams();
+        double max_piston_path = fmax(p.size / 2, p.size - 30 * p.radius * p.radius * p.particle_max_count / p.size);
+        pistonMaxPathSpinBox->setMaximum(max_piston_path);
     }
-    piston_max_path->setMinimum(0.0);
-    piston_max_path->setValue(this->GetParams().piston_end_position);
-    piston_max_path->setDecimals(2);
-    piston_max_path->setSingleStep(1.0);
-    piston_max_path->setGeometry(label_width,line_number*item_height+emptyspace,width-label_width,item_height-emptyspace);
-    piston_max_path->setFont(QFont("Times", 14, QFont::Normal));
-    connect(piston_max_path,SIGNAL(valueChanged(double)),parent,SLOT(pistonPathChanged(double)));
-    line_number++;
-    //piston_velocity
-    QLabel *label_piston_velocity = new QLabel("Piston Vel",this);
-    label_piston_velocity->setGeometry(0,line_number*item_height+emptyspace,label_width,item_height-emptyspace);
-    label_piston_velocity->setFont(QFont("Times", 14, QFont::Normal));
-    QDoubleSpinBox *piston_velocity = new QDoubleSpinBox(this);
-    piston_velocity->setMaximum(1200.0);
-    piston_velocity->setMinimum(0.0);
-    piston_velocity->setValue(this->GetParams().max_particle_velocity);
-    piston_velocity->setDecimals(2);
-    piston_velocity->setSingleStep(2.5);
-    piston_velocity->setGeometry(label_width,line_number*item_height+emptyspace,width-label_width,item_height-emptyspace);
-    piston_velocity->setFont(QFont("Times", 14, QFont::Normal));
-    connect(piston_velocity,SIGNAL(valueChanged(double)),parent,SLOT(pistonVelocityChanged(double)));
-    line_number++;
-    //Button DRAWTRACE
-    QPushButton *draw_trace = new QPushButton("Draw Trace", this);
-    draw_trace->setGeometry(0,line_number*item_height+emptyspace,width,item_height-emptyspace);
-    draw_trace->setFont(QFont("Times", 14, QFont::Normal));
-    connect(draw_trace, SIGNAL(clicked()), parent, SLOT(changeViewerSettings_trace()));
-    line_number++;
-    //Button DRAWPRATICLES
-    QPushButton *draw_particles = new QPushButton("Draw Particles", this);
-    draw_particles->setGeometry(0,line_number*item_height+emptyspace,width,item_height-emptyspace);
-    draw_particles->setFont(QFont("Times", 14, QFont::Normal));
-    connect(draw_particles, SIGNAL(clicked()), parent, SLOT(changeViewerSettings_particles()));
-    line_number++;
-    //Button RELOAD
-    QPushButton *reload = new QPushButton("Reload", this);
-    reload->setGeometry(0,line_number*item_height+emptyspace,width/2-emptyspace,item_height-emptyspace);
-    reload->setFont(QFont("Times", 14, QFont::Normal));
-    connect(reload, SIGNAL(clicked()), parent, SLOT(buttonReloadPressed()));
-    //Button TIMER
-    stopTimer = new QPushButton("Timer", this);
-    stopTimer->setGeometry(width/2+emptyspace,line_number*item_height+emptyspace,width/2-emptyspace,item_height-emptyspace);
-    stopTimer->setFont(QFont("Times", 14, QFont::Normal));
-    connect(stopTimer, SIGNAL(clicked()), parent, SLOT(buttonStopTimerPressed()));
+    pistonMaxPathSpinBox->setMinimum(0.0);
+    pistonMaxPathSpinBox->setValue(GetParams().piston_end_position);
+    pistonMaxPathSpinBox->setDecimals(2);
+    pistonMaxPathSpinBox->setSingleStep(1.0);
+    pistonMaxPathSpinBox->setFont(QFont("Times", 14, QFont::Normal));
+
+    layout->addWidget(pistonMaxPathSpinBox, 4, 1);
+
+    connect(pistonMaxPathSpinBox, SIGNAL(valueChanged(double)), this, SLOT(onPistonMaxPosChange(double)));
+}
+
+void QtBilliardControl::createPistonVelocityDialog(QGridLayout * layout)
+{
+    QLabel *labelPistonVelocity = new QLabel("Piston Velocity",this);
+    labelPistonVelocity->setFont(QFont("Times", 14, QFont::Normal));
+
+    layout->addWidget(labelPistonVelocity, 5, 0);
+
+    QDoubleSpinBox *pistonVelocitySpinBox = new QDoubleSpinBox(this);
+    pistonVelocitySpinBox->setMaximum(1200.0);
+    pistonVelocitySpinBox->setMinimum(0.0);
+    pistonVelocitySpinBox->setValue(GetParams().max_particle_velocity);
+    pistonVelocitySpinBox->setDecimals(2);
+    pistonVelocitySpinBox->setSingleStep(2.5);
+    pistonVelocitySpinBox->setFont(QFont("Times", 14, QFont::Normal));
+
+    layout->addWidget(pistonVelocitySpinBox, 5, 1);
+
+    connect(pistonVelocitySpinBox, SIGNAL(valueChanged(double)), this, SLOT(onPistonVelocityChange(double)));
+}
+
+void QtBilliardControl::createDrawDialog(QGridLayout * layout)
+{
+    QPushButton *drawTraceButton = new QPushButton("Draw Trace", this);
+    drawTraceButton->setFont(QFont("Times", 14, QFont::Normal));
+
+    layout->addWidget(drawTraceButton, 6, 0);
+
+    connect(drawTraceButton, SIGNAL(clicked()), this, SLOT(onDrawTraceButtonClick()));
+
+    QPushButton *drawParticlesButton = new QPushButton("Draw Particles", this);
+    drawParticlesButton->setFont(QFont("Times", 14, QFont::Normal));
+
+    layout->addWidget(drawParticlesButton, 6, 1);
+
+    connect(drawParticlesButton, SIGNAL(clicked()), this, SLOT(onDrawParticlesButtonClick()));
+}
+
+void QtBilliardControl::createResetDialog(QGridLayout * layout)
+{
+    QPushButton *reloadButton = new QPushButton("Reload", this);
+    reloadButton->setFont(QFont("Times", 14, QFont::Normal));
+    layout->addWidget(reloadButton, 7, 0);
+
+    connect(reloadButton, SIGNAL(clicked()), this, SLOT(onResetButtonClick()));
+}
+
+void QtBilliardControl::createTimerDialog(QGridLayout * layout)
+{
+    QPushButton * timerButton = new QPushButton("Timer", this);
+    timerButton->setFont(QFont("Times", 14, QFont::Normal));
+    layout->addWidget(timerButton, 7, 1);
+
+    connect(timerButton, SIGNAL(clicked()), this, SLOT(onTimerButtonClick()));
+}
+
+void QtBilliardControl::start()
+{
+    timer.start(interval);
+}
+
+void QtBilliardControl::stop()
+{
+    timer.stop();
+}
+
+QtBilliardControl::QtBilliardControl(BilliardModel * m, QtBilliardView * v, QWidget *parent)
+    : QWidget(parent), viewParams(QtBilliardView::defaultParams),
+      model(m), view(v)
+{
+    QGridLayout * layout = new QGridLayout;
+
+    createRadiusDialog(layout);
+    createSizeDialog(layout);
+    createParticleNumDialog(layout);
+    createMaxParticleVelocityDialog(layout);
+    createPistonMaxPosDialog(layout);
+    createPistonVelocityDialog(layout);
+    createDrawDialog(layout);
+    createResetDialog(layout);
+    createTimerDialog(layout);
+
+    setLayout(layout);
+
+    connect(&timer, SIGNAL(timeout()), this, SLOT(onTimeout()));
+
+    model->AddView(*view);
+
+    timer.start();
+}
+
+void QtBilliardControl::onRadiusChange(double r)
+{
+    SetParticleRadius(r);
+}
+
+void QtBilliardControl::onSizeChange(int size)
+{
+    SetBoxSize(size);
+}
+
+void QtBilliardControl::onParticleNumChange(int num)
+{
+    SetMaxParticleNumber(num);
+}
+
+void QtBilliardControl::onParticleVelocityChange(double vel)
+{
+    SetMaxParticleVelocity(vel);
+}
+
+void QtBilliardControl::onPistonMaxPosChange(double pos)
+{
+    SetPistonEndPosition(pos);
+}
+
+void QtBilliardControl::onPistonVelocityChange(double vel)
+{
+    SetPistonVelocity(vel);
+}
+
+void QtBilliardControl::onDrawTraceButtonClick()
+{
+    viewParams.drawTrace = !viewParams.drawTrace;
+    view->SetParams(viewParams);
+}
+
+void QtBilliardControl::onDrawParticlesButtonClick()
+{
+    viewParams.drawParticles = !viewParams.drawParticles;
+    view->SetParams(viewParams);
+}
+
+void QtBilliardControl::onResetButtonClick()
+{
+    stop();
+    model->Reload(GetParams());
+    start();
+}
+
+void QtBilliardControl::onTimerButtonClick()
+{
+    if (timer.isActive())
+    {
+        stop();
+    }
+    else
+    {
+        start();
+    }
+}
+
+void QtBilliardControl::onTimeout()
+{
+    model->update(interval * 1.0 / 1000);
 }
