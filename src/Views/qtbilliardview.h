@@ -13,18 +13,30 @@ class QtBilliardView : public QWidget,
 {
     Q_OBJECT
 public:
-    QtBilliardView(QWidget *parent = 0);
+
+    struct Params
+    {
+        bool drawParticles;
+        bool drawTrace;
+    };
+
+    static const Params defaultParams;
+
+    QtBilliardView(QWidget *parent = 0, const Params & l_params = defaultParams);
     void Update(const BilliardModel & );
     void SetModel(const BilliardModel &);
+    void SetParams(const Params &);
 
 protected:
     void paintEvent(QPaintEvent *);
+
 signals:
 
 public slots:
 
 private:
     const BilliardModel * model;
+    Params params;
     std::list<Point> trace;
 };
 
