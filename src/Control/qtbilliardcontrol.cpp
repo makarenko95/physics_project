@@ -168,6 +168,12 @@ void QtBilliardControl::stop()
     timer.stop();
 }
 
+void QtBilliardControl::SetParams()
+{
+    view->SetParams(viewParams);
+    viewParams.clearTrace = false;
+}
+
 QtBilliardControl::QtBilliardControl(BilliardModel * m, QtBilliardView * v, QWidget *parent)
     : QWidget(parent), viewParams(QtBilliardView::defaultParams),
       model(m), view(v)
@@ -226,19 +232,26 @@ void QtBilliardControl::onPistonVelocityChange(double vel)
 void QtBilliardControl::onDrawTraceButtonClick()
 {
     viewParams.drawTrace = !viewParams.drawTrace;
-    view->SetParams(viewParams);
+    viewParams.clearTrace = true;
+
+    SetParams();
 }
 
 void QtBilliardControl::onDrawParticlesButtonClick()
 {
     viewParams.drawParticles = !viewParams.drawParticles;
-    view->SetParams(viewParams);
+
+    SetParams();
 }
 
 void QtBilliardControl::onResetButtonClick()
 {
     stop();
+
     model->Reload(GetParams());
+    viewParams = QtBilliardView::defaultParams;
+    SetParams();
+
     start();
 }
 

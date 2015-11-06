@@ -3,12 +3,12 @@
 
 #include <QPainter>
 
-const QtBilliardView::Params QtBilliardView::defaultParams = {true, false};
+const QtBilliardView::Params QtBilliardView::defaultParams = {true, false, true};
 
 QtBilliardView::QtBilliardView(QWidget *parent, const Params & l_params)
     : QWidget(parent), model(NULL), params(l_params), trace()
 {
-    setFixedSize(800, 640);
+    setFixedSize(601, 601);
 }
 
 void QtBilliardView::Update(const BilliardModel & model)
@@ -24,11 +24,6 @@ void QtBilliardView::SetModel(const BilliardModel & m)
 
 void QtBilliardView::SetParams(const Params & l_params)
 {
-    if (params.drawTrace != l_params.drawTrace)
-    {
-        trace.clear();
-    }
-
     params = l_params;
 }
 
@@ -44,6 +39,7 @@ void QtBilliardView::paintEvent(QPaintEvent *)
 
 
         QPainter painter(this);
+        painter.setRenderHints(QPainter::Antialiasing);
 
         painter.drawLine(min[0], min[1], max[0], min[1]);
         painter.drawLine(max[0], min[1], max[0], max[1]);
@@ -51,6 +47,12 @@ void QtBilliardView::paintEvent(QPaintEvent *)
         painter.drawLine(min[0], max[1], min[0], min[1]);
 
         const BilliardModel::MyCollisionBox::ParticleList & particles = collisionBox->getParticles();
+
+        if (params.clearTrace)
+        {
+            trace.clear();
+            params.clearTrace = false;
+        }
 
 
         auto it = particles.begin();

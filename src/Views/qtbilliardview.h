@@ -18,6 +18,7 @@ public:
     {
         bool drawParticles;
         bool drawTrace;
+        bool clearTrace;
     };
 
     static const Params defaultParams;

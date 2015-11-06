@@ -45,6 +45,7 @@ private:
     void createTimerDialog(QGridLayout *);
     void start();
     void stop();
+    void SetParams();
 
     QtBilliardView::Params viewParams;
 
