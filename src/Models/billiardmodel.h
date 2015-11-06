@@ -2,22 +2,30 @@
 #define BILLIARDMODEL_H
 
 #include <Views/billiardview.h>
-#include <Control/billiardcontrol.h>
 #include <CollisionBox.h>
 
 #include <list>
-typedef struct ViewerSettings{
-    bool drawTrace;
-    bool drawParticles;
-} ViewerSettings;
 
 class BilliardModel
 {
-    friend class BilliardControl;
 public:
+
+    struct Params
+    {
+        double radius;
+        int size;
+        int particle_max_count;
+        double max_particle_velocity;
+        double piston_start_position;
+        double piston_end_position;
+        double piston_velocity;
+    };
+
+    static const Params defaultParams;
+
     typedef CollisionBox<double, 2> MyCollisionBox;
 
-    BilliardModel(const BilliardModelParams params);
+    BilliardModel(const Params & params = defaultParams);
     ~BilliardModel();
 
     void AddView(BilliardView &);
@@ -25,17 +33,16 @@ public:
     void UpdateViews() const;
     void update(double);
     double getRadius() const;
-    void Reload(BilliardModelParams *inputparams);
+    void Reload(const Params & input = defaultParams);
     const MyCollisionBox *getCollisionBox() const;
-    void changeViewerSettings_DrawTrace();
-    void changeViewerSettings_DrawParticles();
-    ViewerSettings GetViewerSettings() const;
 private:
 
     std::list<BilliardView *> views;
     double radius;
     MyCollisionBox * collisionBox;
-    ViewerSettings settings;
+
+    void GenerateParticles(const Params &);
+    void Load(const Params &);
 };
 
 #endif // BILLIARDMODEL_H
