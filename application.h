@@ -4,6 +4,7 @@
 #include <QWidget>
 #include <Models/billiardmodel.h>
 #include <Views/qtbilliardview.h>
+#include <Control/qtbilliardcontrol.h>
 #include <QTimer>
 
 class Application : public QWidget
@@ -12,26 +13,13 @@ class Application : public QWidget
 
 public:
     Application(QWidget *parent = 0);
-    ~Application();
+
 private:
     BilliardModel model;
-    BilliardControl controller;
-    QtBilliardView *view;
-    QTimer * timer;
-    int interval;
+    QtBilliardView view;
+    QtBilliardControl controller;
 
 public slots:
-    void onTimeOut();
-    void buttonReloadPressed();
-    void buttonStopTimerPressed();
-    void radiusChanged(double);
-    void sizeChanged(int);
-    void particlenumChanged(int);
-    void particleVelocityChanged(double);
-    void pistonPathChanged(double);
-    void pistonVelocityChanged(double);
-    void changeViewerSettings_trace();
-    void changeViewerSettings_particles();
 };
 
 #endif // APPLICATION_H
