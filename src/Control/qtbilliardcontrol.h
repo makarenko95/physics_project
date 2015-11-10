@@ -8,6 +8,7 @@
 #include <QDoubleSpinBox>
 #include <QSpinBox>
 #include <QLabel>
+#include <QCheckBox>
 #include <QGridLayout>
 #include <QTimer>
 
@@ -27,8 +28,9 @@ public slots:
     void onParticleVelocityChange(double);
     void onPistonMaxPosChange(double);
     void onPistonVelocityChange(double);
-    void onDrawTraceButtonClick();
-    void onDrawParticlesButtonClick();
+    void onDrawTraceStateChange(int);
+    void onDrawParticlesStateChange(int);
+    void onVisualFxStateChange(int);
     void onResetButtonClick();
     void onTimerButtonClick();
     void onTimeout();
@@ -40,20 +42,25 @@ private:
     void createMaxParticleVelocityDialog(QGridLayout *);
     void createPistonMaxPosDialog(QGridLayout *);
     void createPistonVelocityDialog(QGridLayout *);
-    void createDrawDialog(QGridLayout *);
+    void createDrawTraceDialog(QGridLayout *);
+    void createDrawParticlesDialog(QGridLayout *);
     void createResetDialog(QGridLayout *);
+    void createVisualFxDialog(QGridLayout *);
     void createTimerDialog(QGridLayout *);
     void start();
     void stop();
-    void SetParams();
-
-    QtBilliardView::Params viewParams;
+    void Reset();
 
     QTimer timer;
     BilliardModel * model;
     QtBilliardView * view;
 
-    static const int interval = 5;
+    bool running;
+    bool drawParticles;
+    bool drawTrace;
+    bool enableVisualFx;
+
+    static const int interval = 20;
 };
 
 #endif // QTBILLIARDCONTROL_H

@@ -2,110 +2,259 @@
 #include <Models/billiardmodel.h>
 
 #include <QPainter>
+#include <QHBoxLayout>
 
-const QtBilliardView::Params QtBilliardView::defaultParams = {true, false, true};
+const QtBilliardView::Params QtBilliardView::defaultParams = {true, false, false};
 
-QtBilliardView::QtBilliardView(QWidget *parent, const Params & l_params)
-    : QWidget(parent), model(NULL), params(l_params), trace()
+QtBilliardView::QtBilliardView(QWidget *parent)
+    : QWidget(parent), width(0), height(0), radius(0), view(&scene),
+      walls(NULL), piston(NULL), observable_particle(NULL),
+      trace(NULL)
 {
-    setFixedSize(601, 601);
+    view.setRenderHint(QPainter::Antialiasing);
+
+    QHBoxLayout * layout = new QHBoxLayout;
+    layout->addWidget(&view);
+    setLayout(layout);
+}
+
+QtBilliardView::~QtBilliardView()
+{
+    Destroy();
 }
 
 void QtBilliardView::Update(const BilliardModel & model)
 {
-    SetModel(model);
-    update();
+    UpdatePiston(model);
+    UpdateParticles(model);
+    UpdateTrace();
+    scene.update();
 }
 
-void QtBilliardView::SetModel(const BilliardModel & m)
+void QtBilliardView::Reload(const BilliardModel & model)
 {
-    model = &m;
-}
+    Destroy();
 
-void QtBilliardView::SetParams(const Params & l_params)
-{
-    params = l_params;
-}
+    auto collisionBox = model.getCollisionBox();
+    auto boundaries = collisionBox->getBoundaries();
+    auto & m_particles = collisionBox->getParticles();
 
-void QtBilliardView::paintEvent(QPaintEvent *)
-{
-    if (model)
+    auto max = boundaries.max;
+
+    SetWidth(max[0]);
+    SetHeight(max[1]);
+    SetRadius(model.getRadius());
+
+    CreateWalls();
+    CreatePiston(collisionBox->getPistonPos());
+
+    for (auto &m_particle : m_particles)
     {
-        const BilliardModel::MyCollisionBox * collisionBox = model->getCollisionBox();
-        const BilliardModel::MyCollisionBox::Box &boundaries = collisionBox->getBoundaries();
+        auto pos = m_particle.getPosition();
 
-        auto min = boundaries.min;
-        auto max = boundaries.max;
+        CreateParticle(pos[0], pos[1]);
+    }
 
+    CreateObservableParticle(*(particles.begin()));
 
-        QPainter painter(this);
-        painter.setRenderHints(QPainter::Antialiasing);
+    last_position = observable_particle->pos();
 
-        painter.drawLine(min[0], min[1], max[0], min[1]);
-        painter.drawLine(max[0], min[1], max[0], max[1]);
-        painter.drawLine(max[0], max[1], min[0], max[1]);
-        painter.drawLine(min[0], max[1], min[0], min[1]);
+    CreateTrace();
+    MakeScene();
+}
 
-        const BilliardModel::MyCollisionBox::ParticleList & particles = collisionBox->getParticles();
+void QtBilliardView::Destroy()
+{
+    delete piston;
+    delete walls;
+    delete trace;
 
-        if (params.clearTrace)
-        {
-            trace.clear();
-            params.clearTrace = false;
-        }
+    for (auto & particle : particles)
+    {
+        delete particle;
+    }
 
+    particles.clear();
+    scene.clear();
 
-        auto it = particles.begin();
+    piston = NULL;
+    walls = NULL;
+    observable_particle = NULL;
+    trace = NULL;
+    width = height = radius = 0;
+}
 
-        {
-            auto pos = it->getPosition();
+void QtBilliardView::SetWidth(int w)
+{
+    width = w;
+}
 
-            trace.push_back(pos);
+void QtBilliardView::SetHeight(int h)
+{
+    height = h;
+}
 
-            while(trace.size() > 2000000)
-            {
-                trace.pop_front();
-            }
+void QtBilliardView::SetRadius(int r)
+{
+    radius = r;
+}
 
-            double r = model->getRadius();
+void QtBilliardView::CreateWalls()
+{
+    walls = new QGraphicsRectItem(0, 0, width, height);
+}
 
-            painter.setPen(Qt::red);
-            painter.drawEllipse(QPointF(pos[0], pos[1]), r, r);
-        }
+void QtBilliardView::CreatePiston(int x)
+{
+    piston = new QGraphicsRectItem(0, 0, x, height);
+}
 
-        if(params.drawParticles)
-        {
-            painter.setPen(Qt::black);
-            it++;
+void QtBilliardView::CreateParticle(int x, int y)
+{
+    QGraphicsEllipseItem *particle = new QGraphicsEllipseItem(0, 0, 2 * radius, 2 * radius);
+    particle->setPos(x - radius, y - radius);
+    particles.push_back(particle);
+}
 
-            for (; it != particles.end(); it++)
-            {
-                auto pos = it->getPosition();
-                double r = model->getRadius();
+void QtBilliardView::CreateObservableParticle(QGraphicsEllipseItem * particle)
+{
+    observable_particle = particle;
+}
 
-                painter.drawEllipse(QPointF(pos[0], pos[1]), r, r);
-            }
-        }
+void QtBilliardView::CreateTrace()
+{
+    trace_layer = QPixmap(width, height);
+    trace = new QGraphicsPixmapItem;
+}
 
+void QtBilliardView::MakeScene()
+{
+    scene.addItem(trace);
+    scene.addItem(walls);
+    scene.addItem(piston);
+
+    for (auto & particle : particles)
+    {
+        scene.addItem(particle);
+    }
+}
+
+void QtBilliardView::UpdatePiston(const BilliardModel & model)
+{
+    auto collisionBox = model.getCollisionBox();
+    int x = collisionBox->getPistonPos();
+
+    piston->setRect(0, 0, x, height);
+}
+
+void QtBilliardView::UpdateParticles(const BilliardModel & model)
+{
+    auto collisionBox = model.getCollisionBox();
+    auto & m_particles = collisionBox->getParticles();
+
+    auto it = particles.begin();
+
+    for (auto m_it = m_particles.begin(); m_it != m_particles.end(); m_it++)
+    {
+        auto pos = m_it->getPosition();
+
+        (*it)->setPos(pos[0] - radius, pos[1] - radius);
+
+        it++;
+    }
+}
+
+void QtBilliardView::UpdateTrace()
+{
+    if (trace->isVisible())
+    {
+        QPainter painter(&trace_layer);
+        painter.setRenderHint(QPainter::Antialiasing);
         painter.setPen(Qt::blue);
 
-        if(params.drawTrace)
-        {
-            auto last_pos = *(trace.begin());
+        QPointF current_pos = observable_particle->pos();
 
-            for(auto it = trace.begin(); it != trace.end(); it++)
-            {
-                auto current_pos = *it;
-                painter.drawLine(current_pos[0],current_pos[1],last_pos[0],last_pos[1]);
-                last_pos = current_pos;
-            }
-        }
+        painter.drawLine(QPointF(last_position.x() + radius, last_position.y() + radius),
+            QPointF(current_pos.x() + radius, current_pos.y() + radius));
 
-        painter.setPen(Qt::red);
-
-        int pistonPos = collisionBox->getPistonPos();
-
-        painter.drawLine(pistonPos, 0, pistonPos, max[1]);
-
+        trace->setPixmap(trace_layer);
+        last_position = current_pos;
     }
+}
+
+void QtBilliardView::ClearTrace()
+{
+    QPainter painter(&trace_layer);
+    painter.setBrush(QBrush(Qt::white));
+    painter.drawRect(0, 0, width, height);
+}
+
+void QtBilliardView::EnableVisualFx()
+{
+    piston->setBrush(QBrush(QColor(163, 163, 209)));
+    piston->setPen(Qt::NoPen);
+
+    for (auto & particle : particles)
+    {
+        particle->setBrush(QBrush(getParticleGradient(Qt::green)));
+        particle->setPen(Qt::NoPen);
+    }
+
+    observable_particle->setBrush(QBrush(getParticleGradient(Qt::red)));
+    observable_particle->setPen(Qt::NoPen);
+}
+
+void QtBilliardView::DisableVisualFx()
+{
+    piston->setBrush(Qt::NoBrush);
+    piston->setPen(QPen(Qt::black));
+
+    for (auto & particle : particles)
+    {
+        particle->setBrush(Qt::NoBrush);
+        particle->setPen(QPen(Qt::black));
+    }
+
+    observable_particle->setBrush(Qt::NoBrush);
+    observable_particle->setPen(QPen(Qt::red));
+}
+
+void QtBilliardView::ShowParticles()
+{
+    for (auto & particle : particles)
+    {
+        particle->show();
+    }
+}
+
+void QtBilliardView::HideParticles()
+{
+    for (auto & particle : particles)
+    {
+        particle->hide();
+    }
+
+    observable_particle->show();
+}
+
+void QtBilliardView::EnableTrace()
+{
+    ClearTrace();
+    trace->setPixmap(trace_layer);
+    trace->show();
+    last_position = observable_particle->pos();
+}
+
+void QtBilliardView::DisableTrace()
+{
+    trace->hide();
+}
+
+QRadialGradient QtBilliardView::getParticleGradient(const QColor & color)
+{
+    QRadialGradient gradient(radius / 1.5, radius / 1.5, radius / 1.5);
+    gradient.setColorAt(1, color);
+    gradient.setColorAt(0, Qt::white);
+
+    return gradient;
 }

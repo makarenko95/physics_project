@@ -3,7 +3,7 @@
 
 void QtBilliardControl::createRadiusDialog(QGridLayout * layout)
 {
-    QLabel *labelRadius = new QLabel("Radius", this);
+    QLabel *labelRadius = new QLabel("Radius of particle:", this);
     labelRadius->setFont(QFont("Times", 14, QFont::Normal));
 
     layout->addWidget(labelRadius, 0, 0);
@@ -23,7 +23,7 @@ void QtBilliardControl::createRadiusDialog(QGridLayout * layout)
 
 void QtBilliardControl::createSizeDialog(QGridLayout * layout)
 {
-    QLabel *labelSize = new QLabel("Size", this);
+    QLabel *labelSize = new QLabel("Size of box:", this);
     labelSize->setFont(QFont("Times", 14, QFont::Normal));
 
     layout->addWidget(labelSize, 1, 0);
@@ -42,7 +42,7 @@ void QtBilliardControl::createSizeDialog(QGridLayout * layout)
 
 void QtBilliardControl::createParticleNumDialog(QGridLayout * layout)
 {
-    QLabel *labelParticleNum = new QLabel("Particle Num",this);
+    QLabel *labelParticleNum = new QLabel("Particle count:",this);
     labelParticleNum->setFont(QFont("Times", 14, QFont::Normal));
 
     layout->addWidget(labelParticleNum, 2, 0);
@@ -61,7 +61,7 @@ void QtBilliardControl::createParticleNumDialog(QGridLayout * layout)
 
 void QtBilliardControl::createMaxParticleVelocityDialog(QGridLayout * layout)
 {
-    QLabel *labelMaxParticleVelocity = new QLabel("Max Velocity", this);
+    QLabel *labelMaxParticleVelocity = new QLabel("Maximum velocity:", this);
     labelMaxParticleVelocity->setFont(QFont("Times", 14, QFont::Normal));
 
     layout->addWidget(labelMaxParticleVelocity, 3, 0);
@@ -81,7 +81,7 @@ void QtBilliardControl::createMaxParticleVelocityDialog(QGridLayout * layout)
 
 void QtBilliardControl::createPistonMaxPosDialog(QGridLayout *layout)
 {
-    QLabel *labelPistonMaxPath = new QLabel("Piston amplitude", this);
+    QLabel *labelPistonMaxPath = new QLabel("Piston amplitude:", this);
     labelPistonMaxPath->setFont(QFont("Times", 14, QFont::Normal));
 
     layout->addWidget(labelPistonMaxPath, 4, 0);
@@ -92,7 +92,7 @@ void QtBilliardControl::createPistonMaxPosDialog(QGridLayout *layout)
         double max_piston_path = fmax(p.size / 2, p.size - 30 * p.radius * p.radius * p.particle_max_count / p.size);
         pistonMaxPathSpinBox->setMaximum(max_piston_path);
     }
-    pistonMaxPathSpinBox->setMinimum(0.0);
+    pistonMaxPathSpinBox->setMinimum(1.0);
     pistonMaxPathSpinBox->setValue(GetParams().piston_end_position);
     pistonMaxPathSpinBox->setDecimals(2);
     pistonMaxPathSpinBox->setSingleStep(1.0);
@@ -105,7 +105,7 @@ void QtBilliardControl::createPistonMaxPosDialog(QGridLayout *layout)
 
 void QtBilliardControl::createPistonVelocityDialog(QGridLayout * layout)
 {
-    QLabel *labelPistonVelocity = new QLabel("Piston Velocity",this);
+    QLabel *labelPistonVelocity = new QLabel("Piston velocity:",this);
     labelPistonVelocity->setFont(QFont("Times", 14, QFont::Normal));
 
     layout->addWidget(labelPistonVelocity, 5, 0);
@@ -113,7 +113,7 @@ void QtBilliardControl::createPistonVelocityDialog(QGridLayout * layout)
     QDoubleSpinBox *pistonVelocitySpinBox = new QDoubleSpinBox(this);
     pistonVelocitySpinBox->setMaximum(1200.0);
     pistonVelocitySpinBox->setMinimum(0.0);
-    pistonVelocitySpinBox->setValue(GetParams().max_particle_velocity);
+    pistonVelocitySpinBox->setValue(GetParams().piston_velocity);
     pistonVelocitySpinBox->setDecimals(2);
     pistonVelocitySpinBox->setSingleStep(2.5);
     pistonVelocitySpinBox->setFont(QFont("Times", 14, QFont::Normal));
@@ -123,37 +123,65 @@ void QtBilliardControl::createPistonVelocityDialog(QGridLayout * layout)
     connect(pistonVelocitySpinBox, SIGNAL(valueChanged(double)), this, SLOT(onPistonVelocityChange(double)));
 }
 
-void QtBilliardControl::createDrawDialog(QGridLayout * layout)
+void QtBilliardControl::createDrawTraceDialog(QGridLayout * layout)
 {
-    QPushButton *drawTraceButton = new QPushButton("Draw Trace", this);
-    drawTraceButton->setFont(QFont("Times", 14, QFont::Normal));
+    QLabel *drawTraceLabel = new QLabel("Draw trace:", this);
+    drawTraceLabel->setFont(QFont("Times", 14, QFont::Normal));
 
-    layout->addWidget(drawTraceButton, 6, 0);
+    layout->addWidget(drawTraceLabel, 6, 0);
 
-    connect(drawTraceButton, SIGNAL(clicked()), this, SLOT(onDrawTraceButtonClick()));
+    QCheckBox * drawTraceCheckBox = new QCheckBox;
+    drawTraceCheckBox->setChecked(drawTrace);
 
-    QPushButton *drawParticlesButton = new QPushButton("Draw Particles", this);
-    drawParticlesButton->setFont(QFont("Times", 14, QFont::Normal));
+    layout->addWidget(drawTraceCheckBox, 6, 1);
 
-    layout->addWidget(drawParticlesButton, 6, 1);
+    connect(drawTraceCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onDrawTraceStateChange(int)));
+}
 
-    connect(drawParticlesButton, SIGNAL(clicked()), this, SLOT(onDrawParticlesButtonClick()));
+void QtBilliardControl::createDrawParticlesDialog(QGridLayout * layout)
+{
+    QLabel *drawParticlesLabel = new QLabel("Draw particles:", this);
+    drawParticlesLabel->setFont(QFont("Times", 14, QFont::Normal));
+
+    layout->addWidget(drawParticlesLabel, 7, 0);
+
+    QCheckBox * drawParticlesCheckBox = new QCheckBox;
+    drawParticlesCheckBox->setChecked(drawParticles);
+
+    layout->addWidget(drawParticlesCheckBox, 7, 1);
+
+    connect(drawParticlesCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onDrawParticlesStateChange(int)));
+}
+
+void QtBilliardControl::createVisualFxDialog(QGridLayout * layout)
+{
+    QLabel *visualFxLabel = new QLabel("Enable visual fx:", this);
+    visualFxLabel->setFont(QFont("Times", 14, QFont::Normal));
+
+    layout->addWidget(visualFxLabel, 8, 0);
+
+    QCheckBox * visualFxCheckBox = new QCheckBox;
+    visualFxCheckBox->setChecked(enableVisualFx);
+
+    layout->addWidget(visualFxCheckBox, 8, 1);
+
+    connect(visualFxCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onVisualFxStateChange(int)));
 }
 
 void QtBilliardControl::createResetDialog(QGridLayout * layout)
 {
-    QPushButton *reloadButton = new QPushButton("Reload", this);
+    QPushButton *reloadButton = new QPushButton("Reload process", this);
     reloadButton->setFont(QFont("Times", 14, QFont::Normal));
-    layout->addWidget(reloadButton, 7, 0);
+    layout->addWidget(reloadButton, 9, 0);
 
     connect(reloadButton, SIGNAL(clicked()), this, SLOT(onResetButtonClick()));
 }
 
 void QtBilliardControl::createTimerDialog(QGridLayout * layout)
 {
-    QPushButton * timerButton = new QPushButton("Timer", this);
+    QPushButton * timerButton = new QPushButton("Start | Stop", this);
     timerButton->setFont(QFont("Times", 14, QFont::Normal));
-    layout->addWidget(timerButton, 7, 1);
+    layout->addWidget(timerButton, 10, 0);
 
     connect(timerButton, SIGNAL(clicked()), this, SLOT(onTimerButtonClick()));
 }
@@ -168,15 +196,50 @@ void QtBilliardControl::stop()
     timer.stop();
 }
 
-void QtBilliardControl::SetParams()
+void QtBilliardControl::Reset()
 {
-    view->SetParams(viewParams);
-    viewParams.clearTrace = false;
+    stop();
+
+    model->Reload(GetParams());
+    view->Reload(*model);
+
+    if (drawParticles)
+    {
+        view->ShowParticles();
+    }
+    else
+    {
+        view->HideParticles();
+    }
+
+    if (drawTrace)
+    {
+        view->EnableTrace();
+    }
+    else
+    {
+        view->DisableTrace();
+    }
+
+    if (enableVisualFx)
+    {
+        view->EnableVisualFx();
+    }
+    else
+    {
+        view->DisableVisualFx();
+    }
+
+    running = true;
+
+    start();
 }
 
 QtBilliardControl::QtBilliardControl(BilliardModel * m, QtBilliardView * v, QWidget *parent)
-    : QWidget(parent), viewParams(QtBilliardView::defaultParams),
-      model(m), view(v)
+    : QWidget(parent), model(m), view(v), running(false),
+      drawParticles(QtBilliardView::defaultParams.drawParticles),
+      drawTrace(QtBilliardView::defaultParams.drawTrace),
+      enableVisualFx(QtBilliardView::defaultParams.enableVisualFx)
 {
     QGridLayout * layout = new QGridLayout;
 
@@ -186,7 +249,9 @@ QtBilliardControl::QtBilliardControl(BilliardModel * m, QtBilliardView * v, QWid
     createMaxParticleVelocityDialog(layout);
     createPistonMaxPosDialog(layout);
     createPistonVelocityDialog(layout);
-    createDrawDialog(layout);
+    createDrawTraceDialog(layout);
+    createDrawParticlesDialog(layout);
+    createVisualFxDialog(layout);
     createResetDialog(layout);
     createTimerDialog(layout);
 
@@ -195,8 +260,6 @@ QtBilliardControl::QtBilliardControl(BilliardModel * m, QtBilliardView * v, QWid
     connect(&timer, SIGNAL(timeout()), this, SLOT(onTimeout()));
 
     model->AddView(*view);
-
-    timer.start();
 }
 
 void QtBilliardControl::onRadiusChange(double r)
@@ -229,41 +292,76 @@ void QtBilliardControl::onPistonVelocityChange(double vel)
     SetPistonVelocity(vel);
 }
 
-void QtBilliardControl::onDrawTraceButtonClick()
+void QtBilliardControl::onDrawTraceStateChange(int state)
 {
-    viewParams.drawTrace = !viewParams.drawTrace;
-    viewParams.clearTrace = true;
-
-    SetParams();
+    if (running)
+    {
+        if (state)
+        {
+            view->EnableTrace();
+        }
+        else
+        {
+            view->DisableTrace();
+        }
+    }
+    drawTrace = state;
 }
 
-void QtBilliardControl::onDrawParticlesButtonClick()
+void QtBilliardControl::onDrawParticlesStateChange(int state)
 {
-    viewParams.drawParticles = !viewParams.drawParticles;
+    if (running)
+    {
+        if (state)
+        {
+            view->ShowParticles();
+        }
+        else
+        {
+            view->HideParticles();
+        }
+    }
+    drawParticles = state;
+}
 
-    SetParams();
+void QtBilliardControl::onVisualFxStateChange(int state)
+{
+    if (running)
+    {
+        if (state)
+        {
+            view->EnableVisualFx();
+        }
+        else
+        {
+            view->DisableVisualFx();
+        }
+    }
+
+    enableVisualFx = state;
 }
 
 void QtBilliardControl::onResetButtonClick()
 {
-    stop();
-
-    model->Reload(GetParams());
-    viewParams = QtBilliardView::defaultParams;
-    SetParams();
-
-    start();
+    Reset();
 }
 
 void QtBilliardControl::onTimerButtonClick()
 {
-    if (timer.isActive())
+    if (running)
     {
-        stop();
+        if (timer.isActive())
+        {
+            stop();
+        }
+        else
+        {
+            start();
+        }
     }
     else
     {
-        start();
+        Reset();
     }
 }
 

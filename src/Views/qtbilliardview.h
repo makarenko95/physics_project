@@ -5,7 +5,13 @@
 #include <QPaintEvent>
 #include "billiardview.h"
 #include <Geometry/Point.h>
+#include <QGraphicsScene>
+#include <QGraphicsView>
+#include <QGraphicsItem>
 #include <list>
+#include <QRadialGradient>
+#include <Geometry/Point.h>
+
 typedef Geometry::Point<double, 2> Point;
 
 class QtBilliardView : public QWidget,
@@ -18,27 +24,63 @@ public:
     {
         bool drawParticles;
         bool drawTrace;
-        bool clearTrace;
+        bool enableVisualFx;
     };
 
     static const Params defaultParams;
 
-    QtBilliardView(QWidget *parent = 0, const Params & l_params = defaultParams);
+    QtBilliardView(QWidget *parent = 0);
+    ~QtBilliardView();
+
     void Update(const BilliardModel & );
-    void SetModel(const BilliardModel &);
-    void SetParams(const Params &);
+    void Reload(const BilliardModel &);
+    void EnableVisualFx();
+    void DisableVisualFx();
+    void ShowParticles();
+    void HideParticles();
+    void EnableTrace();
+    void DisableTrace();
 
 protected:
-    void paintEvent(QPaintEvent *);
 
 signals:
 
 public slots:
 
 private:
-    const BilliardModel * model;
-    Params params;
-    std::list<Point> trace;
+    int width;
+    int height;
+    int radius;
+
+    QGraphicsScene scene;
+    QGraphicsView view;
+
+    QGraphicsRectItem * walls;
+    QGraphicsRectItem * piston;
+    std::list<QGraphicsEllipseItem *> particles;
+    QGraphicsEllipseItem *observable_particle;
+    QGraphicsPixmapItem * trace;
+
+    QPixmap trace_layer;
+    QPointF last_position;
+
+    void Destroy();
+    void SetWidth(int);
+    void SetHeight(int);
+    void SetRadius(int);
+    void CreateWalls();
+    void CreatePiston(int);
+    void CreateParticle(int, int);
+    void CreateObservableParticle(QGraphicsEllipseItem *);
+    void CreateTrace();
+    void MakeScene();
+
+    void UpdatePiston(const BilliardModel &);
+    void UpdateParticles(const BilliardModel &);
+    void UpdateTrace();
+    void ClearTrace();
+
+    QRadialGradient getParticleGradient(const QColor &);
 };
 
 #endif // QTBILLIARDVIEW_H
