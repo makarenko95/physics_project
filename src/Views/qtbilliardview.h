@@ -77,7 +77,7 @@ private:
 
     void UpdatePiston(const BilliardModel &);
     void UpdateParticles(const BilliardModel &);
-    void UpdateTrace();
+    void UpdateTrace(const BilliardModel &);
     void ClearTrace();
 
     QRadialGradient getParticleGradient(const QColor &);

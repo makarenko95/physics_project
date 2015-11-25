@@ -27,7 +27,7 @@ void QtBilliardView::Update(const BilliardModel & model)
 {
     UpdatePiston(model);
     UpdateParticles(model);
-    UpdateTrace();
+    UpdateTrace(model);
     scene.update();
 }
 
@@ -164,21 +164,30 @@ void QtBilliardView::UpdateParticles(const BilliardModel & model)
     }
 }
 
-void QtBilliardView::UpdateTrace()
+void QtBilliardView::UpdateTrace(const BilliardModel & model)
 {
     if (trace->isVisible())
     {
+        auto collisionBox = model.getCollisionBox();
+        auto & track = collisionBox->getTrack();
+
         QPainter painter(&trace_layer);
         painter.setRenderHint(QPainter::Antialiasing);
         painter.setPen(Qt::blue);
 
-        QPointF current_pos = observable_particle->pos();
+        //QPointF current_pos = observable_particle->pos();
 
-        painter.drawLine(QPointF(last_position.x() + radius, last_position.y() + radius),
-            QPointF(current_pos.x() + radius, current_pos.y() + radius));
+        //painter.drawLine(QPointF(last_position.x() + radius, last_position.y() + radius),
+        //    QPointF(current_pos.x() + radius, current_pos.y() + radius));
+
+        for (int i = 0; i < (int)track.size() - 1; i++)
+        {
+            painter.drawLine(QPointF(track[i][0], track[i][1]),
+                QPointF(track[i + 1][0], track[i + 1][1]));
+        }
 
         trace->setPixmap(trace_layer);
-        last_position = current_pos;
+        //last_position = current_pos;
     }
 }
 

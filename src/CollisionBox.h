@@ -14,6 +14,7 @@ Copyright (c) 2005 Oliver Kreylos
 #include <Geometry/Point.h>
 #include <Geometry/Vector.h>
 #include <Geometry/Box.h>
+#include <vector>
 
 template <class ScalarParam, int dimensionParam>
 class CollisionBox
@@ -27,6 +28,7 @@ public:
     typedef Geometry::Vector<Scalar, dimensionParam> Vector; // Data type for points
     typedef Geometry::ComponentArray<Scalar, dimensionParam> Size; // Data type for sizes
     typedef Geometry::Box<Scalar, dimensionParam> Box; // Data type for axis-aligned boxes
+    typedef std::vector<Point> ParticleTrack;
 
 private:
 
@@ -242,6 +244,8 @@ private:
     Scalar pistonVelocity;
     Scalar pistonTimeStamp;
 
+    ParticleTrack track;
+
     /* Private methods: */
     void queueCollisionsInCell(GridCell *cell, Particle *particle1, Scalar timeStep, bool symmetric, Particle *otherParticle, CollisionQueue &collisionQueue);
     void queueCellChanges(Particle *particle, const Point &newPosition, Scalar timeStep, CollisionQueue &collisionQueue);
@@ -250,6 +254,10 @@ private:
     void queuePistonChange(Scalar timeStep, CollisionQueue &collisionQueue);
     void queueCollisionsOnPistonChange(Scalar timeStep, CollisionQueue &collisionQueue);
     void queuePistonCollision(Particle *particle1, Scalar timeStep, CollisionQueue &collisionQueue);
+
+    void clearTrack();
+    void updateTrack(Particle * particle);
+    Particle * getTrackedParticle();
 
     /* Constructors and destructors: */
 public:
@@ -277,6 +285,8 @@ public:
     void setPiston(Scalar sPistonStart, Scalar sPistonEnd, Scalar sPinstonVelocity);
 
     Scalar getPistonPos() const;
+
+    const ParticleTrack & getTrack() const;
 
 };
 

@@ -9,7 +9,7 @@ void QtBilliardControl::createRadiusDialog(QGridLayout * layout)
     layout->addWidget(labelRadius, 0, 0);
 
     QDoubleSpinBox *radiusSpinBox = new QDoubleSpinBox(this);
-    radiusSpinBox->setMaximum(20.0);
+    radiusSpinBox->setMaximum(50.0);
     radiusSpinBox->setMinimum(1.0);
     radiusSpinBox->setValue(GetParams().radius);
     radiusSpinBox->setDecimals(1);
@@ -29,8 +29,8 @@ void QtBilliardControl::createSizeDialog(QGridLayout * layout)
     layout->addWidget(labelSize, 1, 0);
 
     QSpinBox *sizeSpinBox = new QSpinBox(this);
-    sizeSpinBox->setMaximum(600);
-    sizeSpinBox->setMinimum(300);
+    sizeSpinBox->setMaximum(700);
+    sizeSpinBox->setMinimum(100);
     sizeSpinBox->setSingleStep(10);
     sizeSpinBox->setValue(GetParams().size);
     sizeSpinBox->setFont(QFont("Times", 14, QFont::Normal));
@@ -48,7 +48,7 @@ void QtBilliardControl::createParticleNumDialog(QGridLayout * layout)
     layout->addWidget(labelParticleNum, 2, 0);
 
     QSpinBox *particleNumSpinBox = new QSpinBox(this);
-    particleNumSpinBox->setMaximum(5000);
+    particleNumSpinBox->setMaximum(20000);
     particleNumSpinBox->setMinimum(0);
     particleNumSpinBox->setSingleStep(10);
     particleNumSpinBox->setValue(GetParams().particle_max_count);
@@ -67,7 +67,7 @@ void QtBilliardControl::createMaxParticleVelocityDialog(QGridLayout * layout)
     layout->addWidget(labelMaxParticleVelocity, 3, 0);
 
     QDoubleSpinBox *maxParticleVelocitySpinBox = new QDoubleSpinBox(this);
-    maxParticleVelocitySpinBox->setMaximum(3000.0);
+    maxParticleVelocitySpinBox->setMaximum(15000000.0);
     maxParticleVelocitySpinBox->setMinimum(0.0);
     maxParticleVelocitySpinBox->setValue(this->GetParams().max_particle_velocity);
     maxParticleVelocitySpinBox->setDecimals(2);
@@ -87,11 +87,7 @@ void QtBilliardControl::createPistonMaxPosDialog(QGridLayout *layout)
     layout->addWidget(labelPistonMaxPath, 4, 0);
 
     QDoubleSpinBox *pistonMaxPathSpinBox = new QDoubleSpinBox(this);
-    {
-        BilliardModel::Params p = GetParams();
-        double max_piston_path = fmax(p.size / 2, p.size - 30 * p.radius * p.radius * p.particle_max_count / p.size);
-        pistonMaxPathSpinBox->setMaximum(max_piston_path);
-    }
+    pistonMaxPathSpinBox->setMaximum(400);
     pistonMaxPathSpinBox->setMinimum(1.0);
     pistonMaxPathSpinBox->setValue(GetParams().piston_end_position);
     pistonMaxPathSpinBox->setDecimals(2);
@@ -111,7 +107,7 @@ void QtBilliardControl::createPistonVelocityDialog(QGridLayout * layout)
     layout->addWidget(labelPistonVelocity, 5, 0);
 
     QDoubleSpinBox *pistonVelocitySpinBox = new QDoubleSpinBox(this);
-    pistonVelocitySpinBox->setMaximum(1200.0);
+    pistonVelocitySpinBox->setMaximum(3000.0);
     pistonVelocitySpinBox->setMinimum(0.0);
     pistonVelocitySpinBox->setValue(GetParams().piston_velocity);
     pistonVelocitySpinBox->setDecimals(2);

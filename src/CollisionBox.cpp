@@ -456,6 +456,9 @@ void
 CollisionBox<ScalarParam, dimensionParam>::simulate(
     typename CollisionBox<ScalarParam, dimensionParam>::Scalar timeStep)
 {
+    track.clear();
+    updateTrack(getTrackedParticle());
+
     /* Initialize the collision queue: */
     CollisionQueue collisionQueue(numParticles * dimension);
 
@@ -502,6 +505,7 @@ CollisionBox<ScalarParam, dimensionParam>::simulate(
 
                 /* Re-calculate all the particle's collisions: */
                 queueCollisions(nc.particle1, timeStep, true, 0, collisionQueue);
+                updateTrack(nc.particle1);
             }
 
             break;
@@ -525,6 +529,8 @@ CollisionBox<ScalarParam, dimensionParam>::simulate(
                 /* Re-calculate all collisions of both particles: */
                 queueCollisions(nc.particle1, timeStep, true, nc.particle2, collisionQueue);
                 queueCollisions(nc.particle2, timeStep, true, nc.particle1, collisionQueue);
+                updateTrack(nc.particle1);
+                updateTrack(nc.particle2);
 			}
 
             break;
@@ -547,6 +553,7 @@ CollisionBox<ScalarParam, dimensionParam>::simulate(
                 nc.particle1->timeStamp = nc.collisionTime;
                 nc.particle1->velocity[0] = 2 * pistonVelocity - nc.particle1->velocity[0];
                 queueCollisions(nc.particle1, timeStep, true, 0, collisionQueue);
+                updateTrack(nc.particle1);
             }
 
             break;
@@ -576,4 +583,46 @@ CollisionBox<ScalarParam, dimensionParam>::simulate(
 
     pistonPos += pistonVelocity * (timeStep - pistonTimeStamp);
     pistonTimeStamp = Scalar(0);
+
+    updateTrack(getTrackedParticle());
+}
+
+template <class ScalarParam, int dimensionParam>
+inline
+const typename CollisionBox<ScalarParam, dimensionParam>::ParticleTrack &
+CollisionBox<ScalarParam, dimensionParam>::getTrack() const
+{
+    return track;
+}
+
+template <class ScalarParam, int dimensionParam>
+inline
+void
+CollisionBox<ScalarParam, dimensionParam>::clearTrack()
+{
+    track.clear();
+}
+
+template <class ScalarParam, int dimensionParam>
+inline
+void
+CollisionBox<ScalarParam, dimensionParam>::updateTrack(Particle * particle)
+{
+    if (particle && particle == getTrackedParticle())
+    {
+        track.push_back(particle->getPosition());
+    }
+}
+
+template <class ScalarParam, int dimensionParam>
+inline
+typename CollisionBox<ScalarParam, dimensionParam>::Particle *
+CollisionBox<ScalarParam, dimensionParam>::getTrackedParticle()
+{
+    if (!particles.empty())
+    {
+        return &(*particles.begin());
+    }
+
+    return NULL;
 }
