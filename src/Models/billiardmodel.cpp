@@ -13,6 +13,7 @@ const BilliardModel::Params BilliardModel::defaultParams =
 };
 
 BilliardModel::BilliardModel(const Params & params)
+    : piston_run(true)
 {
     Load(params);
 }
@@ -112,10 +113,38 @@ void BilliardModel::Load(const BilliardModel::Params & params)
     GenerateParticles(params);
 
     collisionBox->setPiston(params.piston_start_position, params.piston_end_position, params.piston_velocity);
+    //collisionBox->StartPiston();
 }
 
 void BilliardModel::Reload(const Params & input)
 {
     delete collisionBox;
     Load(input);
+}
+
+void BilliardModel::StopPiston()
+{
+    collisionBox->StopPiston();
+}
+
+void BilliardModel::StartPiston(double vel)
+{
+    collisionBox->StartPiston(vel);
+}
+
+void BilliardModel::ResetPiston(double vel)
+{
+    if (collisionBox)
+    {
+        if (piston_run)
+        {
+            piston_run = false;
+            StopPiston();
+        }
+        else
+        {
+            piston_run = true;
+            StartPiston(vel);
+        }
+    }
 }

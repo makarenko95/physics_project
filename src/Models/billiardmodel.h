@@ -34,6 +34,9 @@ public:
     void update(double);
     double getRadius() const;
     void Reload(const Params & input = defaultParams);
+    void StopPiston();
+    void StartPiston(double);
+    void ResetPiston(double);
     const MyCollisionBox *getCollisionBox() const;
 private:
 
@@ -43,6 +46,7 @@ private:
 
     void GenerateParticles(const Params &);
     void Load(const Params &);
+    bool piston_run;
 };
 
 #endif // BILLIARDMODEL_H

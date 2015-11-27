@@ -28,6 +28,7 @@ public slots:
     void onParticleVelocityChange(double);
     void onPistonMaxPosChange(double);
     void onPistonVelocityChange(double);
+    void onPistonResetButtonClick();
     void onDrawTraceStateChange(int);
     void onDrawParticlesStateChange(int);
     void onVisualFxStateChange(int);
@@ -42,6 +43,7 @@ private:
     void createMaxParticleVelocityDialog(QGridLayout *);
     void createPistonMaxPosDialog(QGridLayout *);
     void createPistonVelocityDialog(QGridLayout *);
+    void createPistonResetDialog(QGridLayout *);
     void createDrawTraceDialog(QGridLayout *);
     void createDrawParticlesDialog(QGridLayout *);
     void createResetDialog(QGridLayout *);

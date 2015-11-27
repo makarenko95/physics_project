@@ -243,8 +243,11 @@ private:
     Scalar pistonEnd;
     Scalar pistonVelocity;
     Scalar pistonTimeStamp;
+    Scalar pistonDir;
 
     ParticleTrack track;
+
+    bool piston_run;
 
     /* Private methods: */
     void queueCollisionsInCell(GridCell *cell, Particle *particle1, Scalar timeStep, bool symmetric, Particle *otherParticle, CollisionQueue &collisionQueue);
@@ -287,6 +290,9 @@ public:
     Scalar getPistonPos() const;
 
     const ParticleTrack & getTrack() const;
+
+    void StopPiston();
+    void StartPiston(Scalar);
 
 };
 

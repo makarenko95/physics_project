@@ -214,7 +214,8 @@ CollisionBox<ScalarParam, dimensionParam>::CollisionBox(
       pistonStart(0),
       pistonEnd(boundaries.max[0]),
       pistonVelocity(0.0),
-      pistonTimeStamp(0.0)
+      pistonTimeStamp(0.0),
+      pistonDir(1.0)
 {
 	/* Calculate optimal number of cells and cell sizes: */
 	Index numOuterCells;
@@ -540,6 +541,7 @@ CollisionBox<ScalarParam, dimensionParam>::simulate(
                 pistonPos += pistonVelocity * (nc.collisionTime - pistonTimeStamp);
                 pistonTimeStamp = nc.collisionTime;
                 pistonVelocity = -pistonVelocity;
+                pistonDir = -pistonDir;
 
                 queueCollisionsOnPistonChange(timeStep, collisionQueue);
             }
@@ -593,6 +595,20 @@ const typename CollisionBox<ScalarParam, dimensionParam>::ParticleTrack &
 CollisionBox<ScalarParam, dimensionParam>::getTrack() const
 {
     return track;
+}
+
+template <class ScalarParam, int dimensionParam>
+inline void
+CollisionBox<ScalarParam, dimensionParam>::StopPiston()
+{
+    pistonVelocity = 0;
+}
+
+template <class ScalarParam, int dimensionParam>
+inline void
+CollisionBox<ScalarParam, dimensionParam>::StartPiston(Scalar vel)
+{
+    pistonVelocity = vel * pistonDir;
 }
 
 template <class ScalarParam, int dimensionParam>
