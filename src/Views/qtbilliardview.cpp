@@ -7,9 +7,9 @@
 const QtBilliardView::Params QtBilliardView::defaultParams = {true, false, false};
 
 QtBilliardView::QtBilliardView(QWidget *parent)
-    : QWidget(parent), width(0), height(0), radius(0), view(&scene),
-      walls(NULL), piston(NULL), observable_particle(NULL),
-      trace(NULL)
+    : QWidget(parent), width(0), height(0), radius(0),
+      scene(NULL), walls(NULL), piston(NULL),
+      observable_particle(NULL), trace(NULL)
 {
     view.setRenderHint(QPainter::Antialiasing);
 
@@ -23,17 +23,23 @@ QtBilliardView::~QtBilliardView()
     Destroy();
 }
 
-void QtBilliardView::Update(const BilliardModel & model)
+void QtBilliardView::Update(const BilliardModel & model, double)
 {
     UpdatePiston(model);
     UpdateParticles(model);
     UpdateTrace(model);
-    scene.update();
+
+    if (scene)
+    {
+        scene->update();
+    }
 }
 
 void QtBilliardView::Reload(const BilliardModel & model)
 {
     Destroy();
+
+    scene = new QGraphicsScene;
 
     auto collisionBox = model.getCollisionBox();
     auto boundaries = collisionBox->getBoundaries();
@@ -57,10 +63,10 @@ void QtBilliardView::Reload(const BilliardModel & model)
 
     CreateObservableParticle(*(particles.begin()));
 
-    last_position = observable_particle->pos();
-
     CreateTrace();
     MakeScene();
+
+    view.setScene(scene);
 }
 
 void QtBilliardView::Destroy()
@@ -75,9 +81,10 @@ void QtBilliardView::Destroy()
     }
 
     particles.clear();
-    scene.clear();
+    delete scene;
 
     piston = NULL;
+    scene = NULL;
     walls = NULL;
     observable_particle = NULL;
     trace = NULL;
@@ -129,13 +136,13 @@ void QtBilliardView::CreateTrace()
 
 void QtBilliardView::MakeScene()
 {
-    scene.addItem(trace);
-    scene.addItem(walls);
-    scene.addItem(piston);
+    scene->addItem(trace);
+    scene->addItem(walls);
+    scene->addItem(piston);
 
     for (auto & particle : particles)
     {
-        scene.addItem(particle);
+        scene->addItem(particle);
     }
 }
 
@@ -175,11 +182,6 @@ void QtBilliardView::UpdateTrace(const BilliardModel & model)
         painter.setRenderHint(QPainter::Antialiasing);
         painter.setPen(Qt::blue);
 
-        //QPointF current_pos = observable_particle->pos();
-
-        //painter.drawLine(QPointF(last_position.x() + radius, last_position.y() + radius),
-        //    QPointF(current_pos.x() + radius, current_pos.y() + radius));
-
         for (int i = 0; i < (int)track.size() - 1; i++)
         {
             painter.drawLine(QPointF(track[i][0], track[i][1]),
@@ -187,7 +189,6 @@ void QtBilliardView::UpdateTrace(const BilliardModel & model)
         }
 
         trace->setPixmap(trace_layer);
-        //last_position = current_pos;
     }
 }
 

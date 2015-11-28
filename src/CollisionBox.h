@@ -285,6 +285,8 @@ public:
         return particles;
     }
 
+    Scalar GetAverageVelocity() const;
+
     void setPiston(Scalar sPistonStart, Scalar sPistonEnd, Scalar sPinstonVelocity);
 
     Scalar getPistonPos() const;

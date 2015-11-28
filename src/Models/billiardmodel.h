@@ -30,18 +30,22 @@ public:
 
     void AddView(BilliardView &);
     void RemoveView(BilliardView &);
-    void UpdateViews() const;
+    void UpdateViews(double) const;
+    void ReloadViews() const;
     void update(double);
     double getRadius() const;
     void Reload(const Params & input = defaultParams);
     void StopPiston();
     void StartPiston(double);
     void ResetPiston(double);
+    double GetAverageVelocity() const;
+    double GetMaxVelocity() const;
     const MyCollisionBox *getCollisionBox() const;
 private:
 
     std::list<BilliardView *> views;
     double radius;
+    double maxVelocity;
     MyCollisionBox * collisionBox;
 
     void GenerateParticles(const Params &);

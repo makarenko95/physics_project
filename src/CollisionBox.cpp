@@ -642,3 +642,20 @@ CollisionBox<ScalarParam, dimensionParam>::getTrackedParticle()
 
     return NULL;
 }
+
+template <class ScalarParam, int dimensionParam>
+inline
+typename CollisionBox<ScalarParam, dimensionParam>::Scalar
+CollisionBox<ScalarParam, dimensionParam>::GetAverageVelocity() const
+{
+    Scalar v = 0;
+
+    for(auto particle: particles)
+    {
+        v += particle.velocity.mag();
+    }
+
+    v /= particles.size();
+
+    return v;
+}

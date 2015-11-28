@@ -32,7 +32,7 @@ public:
     QtBilliardView(QWidget *parent = 0);
     ~QtBilliardView();
 
-    void Update(const BilliardModel & );
+    void Update(const BilliardModel &, double);
     void Reload(const BilliardModel &);
     void EnableVisualFx();
     void DisableVisualFx();
@@ -52,7 +52,7 @@ private:
     int height;
     int radius;
 
-    QGraphicsScene scene;
+    QGraphicsScene * scene;
     QGraphicsView view;
 
     QGraphicsRectItem * walls;

@@ -6,7 +6,7 @@
 
 QT       += core gui
 
-greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
+greaterThan(QT_MAJOR_VERSION, 4): QT += widgets printsupport
 
 TARGET = phys2
 TEMPLATE = app
@@ -29,7 +29,13 @@ SOURCES += main.cpp\
     src/Views/billiardview.cpp \
     src/Views/qtbilliardview.cpp \
     src/Control/billiardcontrol.cpp \
-    src/Control/qtbilliardcontrol.cpp
+    src/Control/qtbilliardcontrol.cpp \
+    src/Views/qtplot.cpp \
+    src/qcustomplot.cpp \
+    src/Views/qtaveragevelocityplot.cpp \
+    src/Views/qtvelocityhistogram.cpp \
+    src/Views/qthistogram.cpp \
+    src/Views/qtdirectionhistogram.cpp
 
 HEADERS  += application.h \
     src/Geometry/Box.h \
@@ -57,7 +63,13 @@ HEADERS  += application.h \
     src/Views/billiardview.h \
     src/Views/qtbilliardview.h \
     src/Control/billiardcontrol.h \
-    src/Control/qtbilliardcontrol.h
+    src/Control/qtbilliardcontrol.h \
+    src/Views/qtplot.h \
+    src/qcustomplot.h \
+    src/Views/qtaveragevelocityplot.h \
+    src/Views/qtvelocityhistogram.h \
+    src/Views/qthistogram.h \
+    src/Views/qtdirectionhistogram.h
 
 INCLUDEPATH += src
 

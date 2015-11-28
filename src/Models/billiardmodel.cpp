@@ -4,7 +4,7 @@
 const BilliardModel::Params BilliardModel::defaultParams =
 {
     2.0,
-    500,
+    400,
     300,
     20.0,
     0.0,
@@ -33,18 +33,26 @@ void BilliardModel::RemoveView(BilliardView &v)
     views.remove(&v);
 }
 
-void BilliardModel::UpdateViews() const
+void BilliardModel::UpdateViews(double timeStep) const
 {
-    for (auto iter : views)
+    for (auto view : views)
     {
-        iter->Update(*this);
+        view->Update(*this, timeStep);
+    }
+}
+
+void BilliardModel::ReloadViews() const
+{
+    for (auto view : views)
+    {
+        view->Reload(*this);
     }
 }
 
 void BilliardModel::update(double timeStep)
 {
     collisionBox->simulate(timeStep);
-    UpdateViews();
+    UpdateViews(timeStep);
 }
 
 double BilliardModel::getRadius() const
@@ -75,11 +83,17 @@ void BilliardModel::GenerateParticles(const BilliardModel::Params & params)
             MyCollisionBox::Point p;
             MyCollisionBox::Vector v;
 
+            //double len = 0;
             for (int j = 0; j < MyCollisionBox::dimension; ++j)
             {
                 p[j] = boundaries.min[j] + MyCollisionBox::Scalar(radius) + (boundaries.max[j] - boundaries.min[j] - MyCollisionBox::Scalar(radius * 2)) * MyCollisionBox::Scalar(Math::randUniformCC());
-                v[j] = MyCollisionBox::Scalar(Math::randUniformCC(-params.max_particle_velocity, params.max_particle_velocity));
             }
+
+            double r = MyCollisionBox::Scalar(Math::randUniformCC(0.0, params.max_particle_velocity));
+            double phi = MyCollisionBox::Scalar(Math::randUniformCC(0.0, 2 * acos(-1)));
+            v[0] = r * cos(phi);
+            v[1] = r * sin(phi);
+
 
             // Try adding the new particle:
             if (collisionBox->addParticle(p, v))
@@ -97,6 +111,7 @@ void BilliardModel::GenerateParticles(const BilliardModel::Params & params)
 
 void BilliardModel::Load(const BilliardModel::Params & params)
 {
+    maxVelocity = params.max_particle_velocity;
     radius = params.radius;
 
     MyCollisionBox::Point min, max;
@@ -113,6 +128,7 @@ void BilliardModel::Load(const BilliardModel::Params & params)
     GenerateParticles(params);
 
     collisionBox->setPiston(params.piston_start_position, params.piston_end_position, params.piston_velocity);
+    ReloadViews();
     //collisionBox->StartPiston();
 }
 
@@ -147,4 +163,14 @@ void BilliardModel::ResetPiston(double vel)
             StartPiston(vel);
         }
     }
+}
+
+double BilliardModel::GetAverageVelocity() const
+{
+    return collisionBox->GetAverageVelocity();
+}
+
+double BilliardModel::GetMaxVelocity() const
+{
+    return maxVelocity;
 }

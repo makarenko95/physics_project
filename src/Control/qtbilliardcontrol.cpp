@@ -3,7 +3,7 @@
 
 void QtBilliardControl::createRadiusDialog(QGridLayout * layout)
 {
-    QLabel *labelRadius = new QLabel("Radius of particle:", this);
+    QLabel *labelRadius = new QLabel("Радиус частицы:", this);
     labelRadius->setFont(QFont("Times", 14, QFont::Normal));
 
     layout->addWidget(labelRadius, 0, 0);
@@ -23,7 +23,7 @@ void QtBilliardControl::createRadiusDialog(QGridLayout * layout)
 
 void QtBilliardControl::createSizeDialog(QGridLayout * layout)
 {
-    QLabel *labelSize = new QLabel("Size of box:", this);
+    QLabel *labelSize = new QLabel("Размер сосуда:", this);
     labelSize->setFont(QFont("Times", 14, QFont::Normal));
 
     layout->addWidget(labelSize, 1, 0);
@@ -42,7 +42,7 @@ void QtBilliardControl::createSizeDialog(QGridLayout * layout)
 
 void QtBilliardControl::createParticleNumDialog(QGridLayout * layout)
 {
-    QLabel *labelParticleNum = new QLabel("Particle count:",this);
+    QLabel *labelParticleNum = new QLabel("Число частиц:",this);
     labelParticleNum->setFont(QFont("Times", 14, QFont::Normal));
 
     layout->addWidget(labelParticleNum, 2, 0);
@@ -61,7 +61,7 @@ void QtBilliardControl::createParticleNumDialog(QGridLayout * layout)
 
 void QtBilliardControl::createMaxParticleVelocityDialog(QGridLayout * layout)
 {
-    QLabel *labelMaxParticleVelocity = new QLabel("Maximum velocity:", this);
+    QLabel *labelMaxParticleVelocity = new QLabel("Макс. скорость:", this);
     labelMaxParticleVelocity->setFont(QFont("Times", 14, QFont::Normal));
 
     layout->addWidget(labelMaxParticleVelocity, 3, 0);
@@ -81,7 +81,7 @@ void QtBilliardControl::createMaxParticleVelocityDialog(QGridLayout * layout)
 
 void QtBilliardControl::createPistonMaxPosDialog(QGridLayout *layout)
 {
-    QLabel *labelPistonMaxPath = new QLabel("Piston amplitude:", this);
+    QLabel *labelPistonMaxPath = new QLabel("Амплитуда поршня:", this);
     labelPistonMaxPath->setFont(QFont("Times", 14, QFont::Normal));
 
     layout->addWidget(labelPistonMaxPath, 4, 0);
@@ -101,7 +101,7 @@ void QtBilliardControl::createPistonMaxPosDialog(QGridLayout *layout)
 
 void QtBilliardControl::createPistonVelocityDialog(QGridLayout * layout)
 {
-    QLabel *labelPistonVelocity = new QLabel("Piston velocity:",this);
+    QLabel *labelPistonVelocity = new QLabel("Скорость поршня:",this);
     labelPistonVelocity->setFont(QFont("Times", 14, QFont::Normal));
 
     layout->addWidget(labelPistonVelocity, 5, 0);
@@ -120,7 +120,7 @@ void QtBilliardControl::createPistonVelocityDialog(QGridLayout * layout)
 }
 
 void QtBilliardControl::createPistonResetDialog(QGridLayout * layout)
-{    QPushButton *pistonButton = new QPushButton("Piston Start/Stop", this);
+{    QPushButton *pistonButton = new QPushButton("Вкл./Выкл. поршень", this);
      pistonButton->setFont(QFont("Times", 14, QFont::Normal));
 
      layout->addWidget(pistonButton, 6, 0);
@@ -130,7 +130,7 @@ void QtBilliardControl::createPistonResetDialog(QGridLayout * layout)
 
 void QtBilliardControl::createDrawTraceDialog(QGridLayout * layout)
 {
-    QLabel *drawTraceLabel = new QLabel("Draw trace:", this);
+    QLabel *drawTraceLabel = new QLabel("Отрисовка траектории:", this);
     drawTraceLabel->setFont(QFont("Times", 14, QFont::Normal));
 
     layout->addWidget(drawTraceLabel, 7, 0);
@@ -145,7 +145,7 @@ void QtBilliardControl::createDrawTraceDialog(QGridLayout * layout)
 
 void QtBilliardControl::createDrawParticlesDialog(QGridLayout * layout)
 {
-    QLabel *drawParticlesLabel = new QLabel("Draw particles:", this);
+    QLabel *drawParticlesLabel = new QLabel("Отрисовка частиц:", this);
     drawParticlesLabel->setFont(QFont("Times", 14, QFont::Normal));
 
     layout->addWidget(drawParticlesLabel, 8, 0);
@@ -160,7 +160,7 @@ void QtBilliardControl::createDrawParticlesDialog(QGridLayout * layout)
 
 void QtBilliardControl::createVisualFxDialog(QGridLayout * layout)
 {
-    QLabel *visualFxLabel = new QLabel("Enable visual fx:", this);
+    QLabel *visualFxLabel = new QLabel("Вкл. оформление:", this);
     visualFxLabel->setFont(QFont("Times", 14, QFont::Normal));
 
     layout->addWidget(visualFxLabel, 9, 0);
@@ -175,7 +175,7 @@ void QtBilliardControl::createVisualFxDialog(QGridLayout * layout)
 
 void QtBilliardControl::createResetDialog(QGridLayout * layout)
 {
-    QPushButton *reloadButton = new QPushButton("Reload process", this);
+    QPushButton *reloadButton = new QPushButton("Начать заново", this);
     reloadButton->setFont(QFont("Times", 14, QFont::Normal));
     layout->addWidget(reloadButton, 10, 0);
 
@@ -184,7 +184,7 @@ void QtBilliardControl::createResetDialog(QGridLayout * layout)
 
 void QtBilliardControl::createTimerDialog(QGridLayout * layout)
 {
-    QPushButton * timerButton = new QPushButton("Start | Stop", this);
+    QPushButton * timerButton = new QPushButton("Пауза/Продолжить", this);
     timerButton->setFont(QFont("Times", 14, QFont::Normal));
     layout->addWidget(timerButton, 11, 0);
 
@@ -206,7 +206,6 @@ void QtBilliardControl::Reset()
     stop();
 
     model->Reload(GetParams());
-    view->Reload(*model);
 
     if (drawParticles)
     {
