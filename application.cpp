@@ -14,20 +14,28 @@ Application::Application(QWidget *parent)
     model.AddView(av_plot);
     model.AddView(v_histogram);
     model.AddView(d_histogram);
+    model.AddView(w_plot);
 
     QPalette p = palette();
     p.setColor(backgroundRole(), QColor(177, 224, 242));
     setPalette(p);
 
     QVBoxLayout * left = new QVBoxLayout;
+    QVBoxLayout * left_right = new QVBoxLayout;
+    QHBoxLayout * plots_and_view = new QHBoxLayout;
     QHBoxLayout * plots = new QHBoxLayout;
 
-    left->addWidget(&view);
+    plots_and_view->addWidget(&view);
     plots->addWidget(&av_plot);
-    plots->addWidget(&v_histogram);
-    plots->addWidget(&d_histogram);
+    left_right->addWidget(&v_histogram);
+    left_right->addWidget(&d_histogram);
+    plots->addWidget(&w_plot);
+    plots_and_view->addLayout(left_right);
+
+    left->addLayout(plots_and_view);
     left->addLayout(plots);
 
+    v_histogram.setFixedWidth(300);
     av_plot.setFixedHeight(200);
 
     QHBoxLayout * layout = new QHBoxLayout;

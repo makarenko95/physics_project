@@ -13,6 +13,7 @@ QtHistogram::QtHistogram(QWidget *parent)
 
 void QtHistogram::Reload(const BilliardModel &)
 {
+    max_max_num = 0;
     Initialize();
 }
 
@@ -47,8 +48,11 @@ void QtHistogram::SetData(QVector<double> & v, int num_of_columns)
             max_num = hist[idx];
     }
 
+    if(max_num > max_max_num)
+        max_max_num = max_num;
+
     plot.xAxis->setRange(0, num_of_columns);
-    plot.yAxis->setRange(0, max_num * 1.25);
+    plot.yAxis->setRange(0, max_max_num * 1.25);
 
     bars->setData(key, hist);
 }

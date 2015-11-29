@@ -14,6 +14,10 @@ public:
     void Reload(const BilliardModel &);
     virtual void Initialize() = 0;
     void SetData(QVector<double> &, int);
+
+private:
+    double max_max_num;
+
 signals:
 
 public slots:

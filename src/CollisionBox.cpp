@@ -610,6 +610,21 @@ CollisionBox<ScalarParam, dimensionParam>::StartPiston(Scalar vel)
 {
     pistonVelocity = vel * pistonDir;
 }
+template <class ScalarParam, int dimensionParam>
+inline
+typename CollisionBox<ScalarParam, dimensionParam>::Scalar
+CollisionBox<ScalarParam, dimensionParam>::GetEnergy() const
+{
+    Scalar Energy = 0;
+
+    for(auto particle : particles)
+    {
+        Scalar vel = particle.getVelocity().mag();
+        Energy += vel * vel;
+    }
+
+    return Energy / 2;
+}
 
 template <class ScalarParam, int dimensionParam>
 inline

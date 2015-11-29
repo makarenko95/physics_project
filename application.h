@@ -10,6 +10,7 @@
 #include <Views/qtaveragevelocityplot.h>
 #include <Views/qtvelocityhistogram.h>
 #include <Views/qtdirectionhistogram.h>
+#include <Views/qtworkplot.h>
 
 class Application : public QWidget
 {
@@ -25,7 +26,7 @@ private:
     QtAverageVelocityPlot av_plot;
     QtVelocityHistogram v_histogram;
     QtDirectionHistogram d_histogram;
-
+    QtWorkPlot w_plot;
 public slots:
 };
 

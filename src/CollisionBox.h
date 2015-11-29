@@ -295,7 +295,7 @@ public:
 
     void StopPiston();
     void StartPiston(Scalar);
-
+    Scalar GetEnergy() const;
 };
 
 #ifndef COLLISIONBOX_IMPLEMENTATION

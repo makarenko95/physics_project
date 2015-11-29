@@ -7,7 +7,12 @@ QtDirectionHistogram::QtDirectionHistogram()
 
 void QtDirectionHistogram::Initialize()
 {
-    plot.yAxis->setLabel("Количество частиц");
+    plot.yAxis->setLabel("Количество\nчастиц");
+    plot.xAxis->setLabel("Разбиения");
+
+    bars->setName("По углу");
+
+    plot.legend->setVisible(true);
 }
 
 void QtDirectionHistogram::Update(const BilliardModel & model, double)
@@ -26,7 +31,7 @@ void QtDirectionHistogram::Update(const BilliardModel & model, double)
         values.push_back(atan2(vel[1], vel[0]) + PI);
     }
 
-    SetData(values, values.size() / 10);
+    SetData(values, std::max(1, values.size() / 10));
 
     plot.replot();
 }

@@ -15,7 +15,7 @@ public:
     QtPlot(QWidget *parent = 0);
     void Reload(const BilliardModel &);
     virtual void Initialize() = 0;
-    virtual double ToOffset(double) {return 1;}
+    virtual double ToOffset(double t) {return t;}
     void AddData(double, double);
     void ExpandX();
     void ExpandY();

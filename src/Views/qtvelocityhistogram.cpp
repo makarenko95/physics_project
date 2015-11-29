@@ -3,13 +3,17 @@
 
 QtVelocityHistogram::QtVelocityHistogram()
 {
-    //SetWindowTitle("Гистограмма модуля скорости");
     Initialize();
 }
 
 void QtVelocityHistogram::Initialize()
 {
     plot.yAxis->setLabel("Количество\nчастиц");
+    plot.xAxis->setLabel("Разбиения");
+
+    bars->setName("По модулю");
+
+    plot.legend->setVisible(true);
 }
 
 void QtVelocityHistogram::Update(const BilliardModel & model, double)
@@ -26,7 +30,7 @@ void QtVelocityHistogram::Update(const BilliardModel & model, double)
         values.push_back(particle.getVelocity().mag());
     }
 
-    int num_columns = std::max(1, int(values.size() / 10));
+    int num_columns = std::max(1, int(std::max(1, values.size() / 10)));
     SetData(values, num_columns);
 
     plot.replot();
