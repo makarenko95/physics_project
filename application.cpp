@@ -35,7 +35,7 @@ Application::Application(QWidget *parent)
     left->addLayout(plots_and_view);
     left->addLayout(plots);
 
-    v_histogram.setFixedWidth(300);
+    v_histogram.setFixedWidth(400);
     av_plot.setFixedHeight(200);
 
     QHBoxLayout * layout = new QHBoxLayout;

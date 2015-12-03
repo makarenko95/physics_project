@@ -11,7 +11,8 @@ class QtDirectionHistogram : public QtHistogram
 public:
     QtDirectionHistogram();
     void Initialize();
-    void Update(const BilliardModel &, double);
+    void OnUpdate(const BilliardModel &, double);
+    double ToStep(int);
 
 signals:
 

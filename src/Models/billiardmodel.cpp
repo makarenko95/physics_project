@@ -128,8 +128,8 @@ void BilliardModel::Load(const BilliardModel::Params & params)
     GenerateParticles(params);
 
     collisionBox->setPiston(params.piston_start_position, params.piston_end_position, params.piston_velocity);
+
     ReloadViews();
-    //collisionBox->StartPiston();
 }
 
 void BilliardModel::Reload(const Params & input)

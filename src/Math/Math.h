@@ -35,6 +35,18 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 #define MATH_CONFIG_HAVE_FLOAT_CLASSIFICATIONS
 #endif
 
+#ifdef _WIN32
+#ifndef isinf
+#define isinf(x) ((x)!=(x))
+#endif
+#ifndef isnan
+#define isnan(x) ((x)!=(x))
+#endif
+#ifndef isfinite
+#define isfinite(x) ((!isnan(x)) && (!isinf(x)))
+#endif
+#endif
+
 namespace Math
 {
 
@@ -53,7 +65,7 @@ namespace Math
     inline bool isNan(float value)
     {
     #ifdef MATH_CONFIG_HAVE_FLOAT_CLASSIFICATIONS
-        return __isnanf(value);
+        return isnan(value);
     #else
         return isnan(value);
     #endif
@@ -63,7 +75,7 @@ namespace Math
     inline bool isNan(double value)
     {
     #ifdef MATH_CONFIG_HAVE_FLOAT_CLASSIFICATIONS
-        return __isnan(value);
+        return isnan(value);
     #else
         return isnan(value);
     #endif
@@ -80,7 +92,7 @@ namespace Math
     inline bool isInf(float value)
     {
     #ifdef MATH_CONFIG_HAVE_FLOAT_CLASSIFICATIONS
-        return __isinff(value);
+        return isinf(value);
     #else
         return isinf(value);
     #endif
@@ -90,7 +102,7 @@ namespace Math
     inline bool isInf(double value)
     {
     #ifdef MATH_CONFIG_HAVE_FLOAT_CLASSIFICATIONS
-        return __isinf(value);
+        return isinf(value);
     #else
         return isinf(value);
     #endif
@@ -107,7 +119,11 @@ namespace Math
     inline bool isFinite(float value)
     {
     #ifdef MATH_CONFIG_HAVE_FLOAT_CLASSIFICATIONS
+    #ifdef _WIN32
+        return isfinite(value);
+    #else
         return __finitef(value);
+    #endif
     #else
         return isfinite(value);
     #endif
@@ -117,7 +133,11 @@ namespace Math
     inline bool isFinite(double value)
     {
     #ifdef MATH_CONFIG_HAVE_FLOAT_CLASSIFICATIONS
-        return __finite(value);
+    #ifdef _WIN32
+        return isfinite(value);
+    #else
+        return __finitef(value);
+    #endif
     #else
         return isfinite(value);
     #endif

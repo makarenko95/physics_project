@@ -412,6 +412,11 @@ CollisionBox<ScalarParam, dimensionParam>::queuePistonCollision(
     typename CollisionBox<ScalarParam, dimensionParam>::Scalar timeStep,
     typename CollisionBox<ScalarParam, dimensionParam>::CollisionQueue &collisionQueue)
 {
+    if (pistonVelocity == 0 && pistonPos == 0) //it is such a wall
+    {
+        return;
+    }
+
     Point newPosition = particle->position + particle->velocity * (timeStep - particle->timeStamp);
     Scalar newPistonPosition = pistonPos + pistonVelocity * (timeStep - pistonTimeStamp);
 

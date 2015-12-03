@@ -29,6 +29,9 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 #ifdef __linux__
 #include <limits.h>
 #endif
+#ifdef _WIN32
+#include <limits.h>
+#endif
 
 namespace Math
 {

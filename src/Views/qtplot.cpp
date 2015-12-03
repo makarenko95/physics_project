@@ -8,6 +8,7 @@ QtPlot::QtPlot(QWidget *parent)
     QHBoxLayout * layout = new QHBoxLayout;
     layout->addWidget(&plot);
     setLayout(layout);
+    plot.setInteractions(QCP::iRangeDrag | QCP::iRangeZoom);
 }
 
 void QtPlot::Reload(const BilliardModel &)
