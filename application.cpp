@@ -18,25 +18,40 @@ Application::Application(QWidget *parent)
 
     QPalette p = palette();
     p.setColor(backgroundRole(), QColor(177, 224, 242));
-    setPalette(p);
+
+    QPalette pp = palette();
+    pp.setColor(backgroundRole(), QColor(177, 242, 242));
+
+    QPalette ppp = palette();
+    ppp.setColor(backgroundRole(), QColor(228, 242, 242));
 
     QVBoxLayout * left = new QVBoxLayout;
-    QVBoxLayout * left_right = new QVBoxLayout;
-    QHBoxLayout * plots_and_view = new QHBoxLayout;
+    QScrollArea * plots_scroll = new QScrollArea;
     QHBoxLayout * plots = new QHBoxLayout;
 
-    plots_and_view->addWidget(&view);
+    v_histogram.setFixedSize(400,200);
+    d_histogram.setFixedSize(400,200);
+    av_plot.setFixedSize(400,200);
+    w_plot.setFixedSize(400,200);
+    plots_scroll->setMinimumWidth(420);
+
     plots->addWidget(&av_plot);
-    left_right->addWidget(&v_histogram);
-    left_right->addWidget(&d_histogram);
     plots->addWidget(&w_plot);
-    plots_and_view->addLayout(left_right);
+    plots->addWidget(&v_histogram);
+    plots->addWidget(&d_histogram);
 
-    left->addLayout(plots_and_view);
-    left->addLayout(plots);
+    QWidget * plots_wrapper = new QWidget;
+    plots_wrapper->setLayout(plots);
 
-    v_histogram.setFixedWidth(400);
-    av_plot.setFixedHeight(200);
+    plots_scroll->setWidgetResizable(true);
+    plots_scroll->setWidget(plots_wrapper);
+    plots_scroll->setFixedHeight(240);
+
+    setPalette(p);
+    plots_scroll->setPalette(ppp);
+
+    left->addWidget(&view);
+    left->addWidget(plots_scroll);
 
     QHBoxLayout * layout = new QHBoxLayout;
     layout->addLayout(left);

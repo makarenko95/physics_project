@@ -11,6 +11,18 @@ QtHistogram::QtHistogram(int step, QWidget *parent)
     layout->addWidget(&plot);
     setLayout(layout);
     plot.setInteractions(QCP::iRangeDrag | QCP::iRangeZoom);
+
+    QFont legend_font = QFont("Times", 12, QFont::Normal);
+    QFont axis_font = QFont("Times", 11, QFont::Normal);
+    QFont axis_number_font = QFont("Times", 10, QFont::Normal);
+    QString number_format = "gb";
+
+    plot.legend->setFont(legend_font);
+    plot.xAxis->setLabelFont(axis_font);
+    plot.yAxis->setLabelFont(axis_font);
+    plot.xAxis->setTickLabelFont(axis_number_font);
+    plot.xAxis->setNumberFormat(number_format);
+    plot.yAxis->setNumberFormat(number_format);
 }
 
 void QtHistogram::Reload(const BilliardModel &)
