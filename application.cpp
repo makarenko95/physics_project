@@ -15,6 +15,7 @@ Application::Application(QWidget *parent)
     model.AddView(v_histogram);
     model.AddView(d_histogram);
     model.AddView(w_plot);
+    model.AddView(fp_plot);
 
     QPalette p = palette();
     p.setColor(backgroundRole(), QColor(177, 224, 242));
@@ -33,10 +34,12 @@ Application::Application(QWidget *parent)
     d_histogram.setFixedSize(400,200);
     av_plot.setFixedSize(400,200);
     w_plot.setFixedSize(400,200);
+    fp_plot.setFixedSize(400,200);
     plots_scroll->setMinimumWidth(420);
 
     plots->addWidget(&av_plot);
     plots->addWidget(&w_plot);
+    plots->addWidget(&fp_plot);
     plots->addWidget(&v_histogram);
     plots->addWidget(&d_histogram);
 

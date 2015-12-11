@@ -248,6 +248,9 @@ private:
     ParticleTrack track;
 
     bool piston_run;
+    Scalar free_path;
+    Scalar current_path;
+    unsigned int num_of_collisions;
 
     /* Private methods: */
     void queueCollisionsInCell(GridCell *cell, Particle *particle1, Scalar timeStep, bool symmetric, Particle *otherParticle, CollisionQueue &collisionQueue);
@@ -260,6 +263,8 @@ private:
 
     void clearTrack();
     void updateTrack(Particle * particle);
+    void updateFreePath(Particle * particle, Scalar delta_path);
+
     Particle * getTrackedParticle();
 
     /* Constructors and destructors: */
@@ -296,6 +301,7 @@ public:
     void StopPiston();
     void StartPiston(Scalar);
     Scalar GetEnergy() const;
+    Scalar GetFreePath() const;
 };
 
 #ifndef COLLISIONBOX_IMPLEMENTATION

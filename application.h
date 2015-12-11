@@ -11,6 +11,7 @@
 #include <Views/qtvelocityhistogram.h>
 #include <Views/qtdirectionhistogram.h>
 #include <Views/qtworkplot.h>
+#include <Views/qtfreepathplot.h>
 
 class Application : public QWidget
 {
@@ -27,6 +28,8 @@ private:
     QtVelocityHistogram v_histogram;
     QtDirectionHistogram d_histogram;
     QtWorkPlot w_plot;
+    QtFreePathPlot fp_plot;
+
 public slots:
 };
 

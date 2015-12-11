@@ -36,7 +36,8 @@ SOURCES += main.cpp\
     src/Views/qtvelocityhistogram.cpp \
     src/Views/qthistogram.cpp \
     src/Views/qtdirectionhistogram.cpp \
-    src/Views/qtworkplot.cpp
+    src/Views/qtworkplot.cpp \
+    src/Views/qtfreepathplot.cpp
 
 HEADERS  += application.h \
     src/Geometry/Box.h \
@@ -71,7 +72,8 @@ HEADERS  += application.h \
     src/Views/qtvelocityhistogram.h \
     src/Views/qthistogram.h \
     src/Views/qtdirectionhistogram.h \
-    src/Views/qtworkplot.h
+    src/Views/qtworkplot.h \
+    src/Views/qtfreepathplot.h
 
 INCLUDEPATH += src
 

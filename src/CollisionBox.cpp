@@ -215,7 +215,10 @@ CollisionBox<ScalarParam, dimensionParam>::CollisionBox(
       pistonEnd(boundaries.max[0]),
       pistonVelocity(0.0),
       pistonTimeStamp(0.0),
-      pistonDir(1.0)
+      pistonDir(1.0),
+      free_path(0),
+      current_path(0),
+      num_of_collisions(0)
 {
 	/* Calculate optimal number of cells and cell sizes: */
 	Index numOuterCells;
@@ -503,8 +506,10 @@ CollisionBox<ScalarParam, dimensionParam>::simulate(
         case CollisionEvent::WallCollision:
             if (nc.particle1->timeStamp == nc.timeStamp1)
             {
+                Vector delta_pos = nc.particle1->velocity * (nc.collisionTime - nc.timeStamp1);
+                updateFreePath(nc.particle1, delta_pos.mag());
                 /* Bounce the particle off the wall: */
-                nc.particle1->position += nc.particle1->velocity * (nc.collisionTime - nc.timeStamp1);
+                nc.particle1->position += delta_pos;
                 nc.particle1->timeStamp = nc.collisionTime;
                 Vector dv = (Scalar(2) * (nc.wallNormal * nc.particle1->velocity)) * nc.wallNormal;
                 nc.particle1->velocity -= dv;
@@ -519,10 +524,15 @@ CollisionBox<ScalarParam, dimensionParam>::simulate(
         case CollisionEvent::ParticleCollision:
             if (nc.particle1->timeStamp == nc.timeStamp1 && nc.particle2->timeStamp == nc.timeStamp2)
             {
+                Vector delta_pos1 = nc.particle1->velocity * (nc.collisionTime - nc.timeStamp1);
+                Vector delta_pos2 = nc.particle2->velocity * (nc.collisionTime - nc.timeStamp2);
+                updateFreePath(nc.particle1, delta_pos1.mag());
+                updateFreePath(nc.particle2, delta_pos2.mag());
+
                 /* Bounce the two particles off each other: */
-                nc.particle1->position += nc.particle1->velocity * (nc.collisionTime - nc.timeStamp1);
+                nc.particle1->position += delta_pos1;
                 nc.particle1->timeStamp = nc.collisionTime;
-                nc.particle2->position += nc.particle2->velocity * (nc.collisionTime - nc.timeStamp2);
+                nc.particle2->position += delta_pos2;
                 nc.particle2->timeStamp = nc.collisionTime;
                 Vector d = nc.particle2->position - nc.particle1->position;
                 Scalar dLen2 = Geometry::sqr(d);
@@ -556,7 +566,10 @@ CollisionBox<ScalarParam, dimensionParam>::simulate(
         case CollisionEvent::PistonCollision:
             if (nc.particle1->timeStamp == nc.timeStamp1)
             {
-                nc.particle1->position += nc.particle1->velocity * (nc.collisionTime - nc.particle1->timeStamp);
+                Vector delta_pos = nc.particle1->velocity * (nc.collisionTime - nc.timeStamp1);
+                updateFreePath(nc.particle1, delta_pos.mag());
+
+                nc.particle1->position += delta_pos;
                 nc.particle1->timeStamp = nc.collisionTime;
                 nc.particle1->velocity[0] = 2 * pistonVelocity - nc.particle1->velocity[0];
                 queueCollisions(nc.particle1, timeStep, true, 0, collisionQueue);
@@ -583,7 +596,12 @@ CollisionBox<ScalarParam, dimensionParam>::simulate(
     {
         for (typename ParticleList::iterator pIt = particles.begin(); pIt != particles.end(); ++pIt)
         {
-            pIt->position += pIt->velocity * (timeStep - pIt->timeStamp);
+            Vector delta_pos = pIt->velocity * (timeStep - pIt->timeStamp);
+
+            if(&(*pIt) == getTrackedParticle())
+                current_path += delta_pos.mag();
+
+            pIt->position += delta_pos;
             pIt->timeStamp = Scalar(0);
 		}
     }
@@ -632,6 +650,13 @@ CollisionBox<ScalarParam, dimensionParam>::GetEnergy() const
 }
 
 template <class ScalarParam, int dimensionParam>
+typename CollisionBox<ScalarParam, dimensionParam>::Scalar
+CollisionBox<ScalarParam, dimensionParam>::GetFreePath() const
+{
+    return free_path;
+}
+
+template <class ScalarParam, int dimensionParam>
 inline
 void
 CollisionBox<ScalarParam, dimensionParam>::clearTrack()
@@ -647,6 +672,20 @@ CollisionBox<ScalarParam, dimensionParam>::updateTrack(Particle * particle)
     if (particle && particle == getTrackedParticle())
     {
         track.push_back(particle->getPosition());
+    }
+}
+
+template <class ScalarParam, int dimensionParam>
+inline
+void
+CollisionBox<ScalarParam, dimensionParam>::updateFreePath(Particle * particle, Scalar delta_path)
+{
+    if (particle && particle == getTrackedParticle())
+    {
+        //free_path = current_path;
+        free_path = (free_path * num_of_collisions + current_path + delta_path) / (num_of_collisions + 1);
+        num_of_collisions++;
+        current_path = 0;
     }
 }
 
