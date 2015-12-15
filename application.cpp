@@ -1,63 +1,128 @@
 #include "application.h"
-#include <Views/qtbilliardview.h>
 #include <QHBoxLayout>
 #include <QVBoxLayout>
-#include <QGridLayout>
-#include <Control/qtbilliardcontrol.h>
-#include <QSizePolicy>
 
 #include <QPalette>
 
 Application::Application(QWidget *parent)
-    : QWidget(parent), controller(&model, &view)
+    : QWidget(parent), demonstration( new Demonstration(this)),
+      authors(new Authors(this)),
+      main_menu(new MainMenu(this)),
+      authors_wrapper(Wrap(authors)),
+      main_menu_wrapper(Wrap(main_menu))
+
 {
-    model.AddView(av_plot);
-    model.AddView(v_histogram);
-    model.AddView(d_histogram);
-    model.AddView(w_plot);
-    model.AddView(fp_plot);
+    setFont(QFont("Times", 16, QFont::Normal));
 
-    QPalette p = palette();
-    p.setColor(backgroundRole(), QColor(177, 224, 242));
+    setPalette(demonstration->palette());
 
-    QPalette pp = palette();
-    pp.setColor(backgroundRole(), QColor(177, 242, 242));
+    widgets.addWidget(main_menu_wrapper);
+    widgets.addWidget(demonstration);
+    widgets.addWidget(authors_wrapper);
 
-    QPalette ppp = palette();
-    ppp.setColor(backgroundRole(), QColor(228, 242, 242));
+    QVBoxLayout * layout = new QVBoxLayout;
 
-    QVBoxLayout * left = new QVBoxLayout;
-    QScrollArea * plots_scroll = new QScrollArea;
-    QHBoxLayout * plots = new QHBoxLayout;
+    layout->addWidget(&widgets);
 
-    v_histogram.setFixedSize(400,200);
-    d_histogram.setFixedSize(400,200);
-    av_plot.setFixedSize(400,200);
-    w_plot.setFixedSize(400,200);
-    fp_plot.setFixedSize(400,200);
-    plots_scroll->setMinimumWidth(420);
-
-    plots->addWidget(&av_plot);
-    plots->addWidget(&w_plot);
-    plots->addWidget(&fp_plot);
-    plots->addWidget(&v_histogram);
-    plots->addWidget(&d_histogram);
-
-    QWidget * plots_wrapper = new QWidget;
-    plots_wrapper->setLayout(plots);
-
-    plots_scroll->setWidgetResizable(true);
-    plots_scroll->setWidget(plots_wrapper);
-    plots_scroll->setFixedHeight(240);
-
-    setPalette(p);
-    plots_scroll->setPalette(ppp);
-
-    left->addWidget(&view);
-    left->addWidget(plots_scroll);
-
-    QHBoxLayout * layout = new QHBoxLayout;
-    layout->addLayout(left);
-    layout->addWidget(&controller);
     setLayout(layout);
+}
+
+QWidget *Application::Wrap(QWidget * w)
+{
+    QWidget * widget = new QWidget;
+
+    QVBoxLayout * layout = new QVBoxLayout;
+
+    HeadWidget * head = new HeadWidget;
+    BottomWidget * bottom = new BottomWidget;
+
+    layout->addWidget(head);
+    layout->addWidget(w);
+    layout->addWidget(bottom);
+
+    layout->setAlignment(head, Qt::AlignTop);
+    layout->setAlignment(bottom, Qt::AlignBottom);
+
+    widget->setLayout(layout);
+
+    return widget;
+}
+
+void Application::SelectAuthors()
+{
+    widgets.setCurrentWidget(authors_wrapper);
+}
+
+void Application::SelectDemonstration()
+{
+    widgets.setCurrentWidget(demonstration);
+}
+
+void Application::SelectMainMenu()
+{
+    widgets.setCurrentWidget(main_menu_wrapper);
+}
+
+HeadWidget::HeadWidget(QWidget *parent)
+    : QWidget(parent)
+{
+    setFont(QFont("Times", 14, QFont::Normal));
+    QHBoxLayout * layout = new QHBoxLayout;
+    QVBoxLayout * left = new QVBoxLayout;
+    QVBoxLayout * right = new QVBoxLayout;
+
+    cmc_logo.setPixmap(QPixmap("data/cmc.png"));
+    cmc_logo.setScaledContents(true);
+    cmc_logo.setFixedSize(120, 120);
+
+    phys_logo.setPixmap(QPixmap("data/phys.png"));
+    phys_logo.setScaledContents(true);
+    phys_logo.setFixedSize(120, 120);
+
+    cmc_text.setText("Факультет вычислительной\nматематики и кибернетики");
+    phys_text.setText("Физический факультет");
+    msu_text.setText("Московский государственный университет\nимени М.В. Ломоносова");
+
+    msu_text.setFont(QFont("Times", 24, QFont::Bold));
+    msu_text.setAlignment(Qt::AlignCenter);
+
+    left->addWidget(&cmc_logo);
+    left->addWidget(&cmc_text);
+
+    left->setAlignment(&cmc_logo, Qt::AlignCenter);
+    left->setAlignment(&cmc_text, Qt::AlignCenter);
+
+    right->addWidget(&phys_logo);
+    right->addWidget(&phys_text);
+
+    right->setAlignment(&phys_logo, Qt::AlignCenter);
+    right->setAlignment(&phys_text, Qt::AlignCenter);
+
+    layout->addLayout(left);
+    layout->addWidget(&msu_text);
+    layout->addLayout(right);
+
+    layout->setAlignment(left, Qt::AlignLeft);
+    layout->setAlignment(right, Qt::AlignRight);
+    layout->setAlignment(&msu_text, Qt::AlignCenter);
+
+    setLayout(layout);
+
+    setFixedHeight(180);
+}
+
+BottomWidget::BottomWidget(QWidget *parent)
+    : QWidget(parent)
+{
+    QHBoxLayout * layout = new QHBoxLayout;
+
+    text.setText("Москва, 2015");
+
+    layout->addWidget(&text);
+
+    layout->setAlignment(&text, Qt::AlignCenter);
+
+    setLayout(layout);
+
+    setFixedHeight(35);
 }

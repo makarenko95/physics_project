@@ -2,16 +2,36 @@
 #define APPLICATION_H
 
 #include <QWidget>
-#include <Models/billiardmodel.h>
-#include <Views/qtbilliardview.h>
-#include <Views/qtplot.h>
-#include <Control/qtbilliardcontrol.h>
-#include <QTimer>
-#include <Views/qtaveragevelocityplot.h>
-#include <Views/qtvelocityhistogram.h>
-#include <Views/qtdirectionhistogram.h>
-#include <Views/qtworkplot.h>
-#include <Views/qtfreepathplot.h>
+#include "demonstration.h"
+#include "authors.h"
+#include "mainmenu.h"
+#include <QStackedWidget>
+
+class HeadWidget: public QWidget
+{
+    Q_OBJECT
+
+public:
+    HeadWidget(QWidget *parent = 0);
+
+private:
+    QLabel cmc_logo;
+    QLabel cmc_text;
+    QLabel phys_logo;
+    QLabel phys_text;
+    QLabel msu_text;
+};
+
+class BottomWidget: public QWidget
+{
+    Q_OBJECT
+
+public:
+    BottomWidget(QWidget *parent = 0);
+
+private:
+    QLabel text;
+};
 
 class Application : public QWidget
 {
@@ -21,16 +41,21 @@ public:
     Application(QWidget *parent = 0);
 
 private:
-    BilliardModel model;
-    QtBilliardView view;
-    QtBilliardControl controller;
-    QtAverageVelocityPlot av_plot;
-    QtVelocityHistogram v_histogram;
-    QtDirectionHistogram d_histogram;
-    QtWorkPlot w_plot;
-    QtFreePathPlot fp_plot;
+    Demonstration * demonstration;
+    Authors * authors;
+    MainMenu * main_menu;
+
+    QStackedWidget widgets;
+
+    QWidget * authors_wrapper;
+    QWidget * main_menu_wrapper;
+
+    QWidget * Wrap(QWidget *);
 
 public slots:
+    void SelectAuthors();
+    void SelectDemonstration();
+    void SelectMainMenu();
 };
 
 #endif // APPLICATION_H

@@ -49,10 +49,12 @@ private:
     void createResetDialog(QGridLayout *);
     void createVisualFxDialog(QGridLayout *);
     void createTimerDialog(QGridLayout *);
+    void createBackButton(QGridLayout *);
     void start();
     void stop();
     void Reset();
 
+    QWidget * parent;
     QTimer timer;
     BilliardModel * model;
     QtBilliardView * view;

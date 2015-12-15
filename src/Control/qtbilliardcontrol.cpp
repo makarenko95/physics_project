@@ -191,6 +191,15 @@ void QtBilliardControl::createTimerDialog(QGridLayout * layout)
     connect(timerButton, SIGNAL(clicked()), this, SLOT(onTimerButtonClick()));
 }
 
+void QtBilliardControl::createBackButton(QGridLayout * layout)
+{
+    QPushButton * backButton = new QPushButton("Главное меню", this);
+    backButton->setFont(QFont("Times", 14, QFont::Normal));
+    layout->addWidget(backButton, 12, 0);
+
+    connect(backButton, SIGNAL(clicked()), parent, SLOT(SelectMainMenu()));
+}
+
 void QtBilliardControl::start()
 {
     timer.start(interval);
@@ -239,8 +248,8 @@ void QtBilliardControl::Reset()
     start();
 }
 
-QtBilliardControl::QtBilliardControl(BilliardModel * m, QtBilliardView * v, QWidget *parent)
-    : QWidget(parent), model(m), view(v), running(false),
+QtBilliardControl::QtBilliardControl(BilliardModel * m, QtBilliardView * v, QWidget *l_parent)
+    : QWidget(NULL), parent(l_parent), model(m), view(v), running(false),
       drawParticles(QtBilliardView::defaultParams.drawParticles),
       drawTrace(QtBilliardView::defaultParams.drawTrace),
       enableVisualFx(QtBilliardView::defaultParams.enableVisualFx)
@@ -259,6 +268,7 @@ QtBilliardControl::QtBilliardControl(BilliardModel * m, QtBilliardView * v, QWid
     createVisualFxDialog(layout);
     createResetDialog(layout);
     createTimerDialog(layout);
+    createBackButton(layout);
 
     setLayout(layout);
 
