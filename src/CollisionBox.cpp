@@ -481,7 +481,9 @@ CollisionBox<ScalarParam, dimensionParam>::simulate(
 	/* Update all particles' positions and handle all collisions: */
     while (!collisionQueue.isEmpty())
     {
-		/* Get the next collision from the queue: */
+        /*if(collisionQueue.getNumElements() > 2000000)
+            exit(0);
+        Get the next collision from the queue: */
         CollisionEvent nc = collisionQueue.getSmallest();
 		collisionQueue.removeSmallest();
 

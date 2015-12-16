@@ -6,6 +6,7 @@
 #include "authors.h"
 #include "mainmenu.h"
 #include <QStackedWidget>
+#include "theory.h"
 
 class HeadWidget: public QWidget
 {
@@ -44,18 +45,22 @@ private:
     Demonstration * demonstration;
     Authors * authors;
     MainMenu * main_menu;
+    Theory * theory;
 
     QStackedWidget widgets;
 
+    QWidget * demonstration_wrapper;
     QWidget * authors_wrapper;
     QWidget * main_menu_wrapper;
+    QWidget * theory_wrapper;
 
-    QWidget * Wrap(QWidget *);
+    QWidget * Wrap(QWidget *, bool head = true, bool bottom = true);
 
 public slots:
     void SelectAuthors();
     void SelectDemonstration();
     void SelectMainMenu();
+    void SelectTheory();
 };
 
 #endif // APPLICATION_H

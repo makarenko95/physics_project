@@ -40,7 +40,8 @@ SOURCES += main.cpp\
     src/Views/qtfreepathplot.cpp \
     demonstration.cpp \
     authors.cpp \
-    src/mainmenu.cpp
+    src/mainmenu.cpp \
+    src/theory.cpp
 
 HEADERS  += application.h \
     src/Geometry/Box.h \
@@ -79,7 +80,8 @@ HEADERS  += application.h \
     src/Views/qtfreepathplot.h \
     demonstration.h \
     authors.h \
-    src/mainmenu.h
+    src/mainmenu.h \
+    src/theory.h
 
 INCLUDEPATH += src
 

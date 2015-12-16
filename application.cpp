@@ -8,16 +8,19 @@ Application::Application(QWidget *parent)
     : QWidget(parent), demonstration( new Demonstration(this)),
       authors(new Authors(this)),
       main_menu(new MainMenu(this)),
+      theory(new Theory(this)),
+      demonstration_wrapper(Wrap(demonstration, false, false)),
       authors_wrapper(Wrap(authors)),
-      main_menu_wrapper(Wrap(main_menu))
-
+      main_menu_wrapper(Wrap(main_menu)),
+      theory_wrapper(Wrap(theory, true, false))
 {
     setFont(QFont("Times", 16, QFont::Normal));
 
     setPalette(demonstration->palette());
 
     widgets.addWidget(main_menu_wrapper);
-    widgets.addWidget(demonstration);
+    widgets.addWidget(demonstration_wrapper);
+    widgets.addWidget(theory_wrapper);
     widgets.addWidget(authors_wrapper);
 
     QVBoxLayout * layout = new QVBoxLayout;
@@ -27,7 +30,7 @@ Application::Application(QWidget *parent)
     setLayout(layout);
 }
 
-QWidget *Application::Wrap(QWidget * w)
+QWidget *Application::Wrap(QWidget * w, bool l_head, bool l_bottom)
 {
     QWidget * widget = new QWidget;
 
@@ -36,9 +39,17 @@ QWidget *Application::Wrap(QWidget * w)
     HeadWidget * head = new HeadWidget;
     BottomWidget * bottom = new BottomWidget;
 
-    layout->addWidget(head);
+    if (l_head)
+    {
+        layout->addWidget(head);
+    }
+
     layout->addWidget(w);
-    layout->addWidget(bottom);
+
+    if (l_bottom)
+    {
+        layout->addWidget(bottom);
+    }
 
     layout->setAlignment(head, Qt::AlignTop);
     layout->setAlignment(bottom, Qt::AlignBottom);
@@ -55,12 +66,17 @@ void Application::SelectAuthors()
 
 void Application::SelectDemonstration()
 {
-    widgets.setCurrentWidget(demonstration);
+    widgets.setCurrentWidget(demonstration_wrapper);
 }
 
 void Application::SelectMainMenu()
 {
     widgets.setCurrentWidget(main_menu_wrapper);
+}
+
+void Application::SelectTheory()
+{
+    widgets.setCurrentWidget(theory_wrapper);
 }
 
 HeadWidget::HeadWidget(QWidget *parent)
@@ -73,11 +89,11 @@ HeadWidget::HeadWidget(QWidget *parent)
 
     cmc_logo.setPixmap(QPixmap("data/cmc.png"));
     cmc_logo.setScaledContents(true);
-    cmc_logo.setFixedSize(120, 120);
+    cmc_logo.setFixedSize(100, 100);
 
     phys_logo.setPixmap(QPixmap("data/phys.png"));
     phys_logo.setScaledContents(true);
-    phys_logo.setFixedSize(120, 120);
+    phys_logo.setFixedSize(100, 100);
 
     cmc_text.setText("Факультет вычислительной\nматематики и кибернетики");
     phys_text.setText("Физический факультет");
@@ -108,7 +124,7 @@ HeadWidget::HeadWidget(QWidget *parent)
 
     setLayout(layout);
 
-    setFixedHeight(180);
+    setFixedHeight(160);
 }
 
 BottomWidget::BottomWidget(QWidget *parent)

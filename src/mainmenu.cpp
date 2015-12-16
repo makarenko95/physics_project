@@ -28,6 +28,7 @@ MainMenu::MainMenu(QWidget *parent) : QWidget(NULL)
 
     connect(&authors_button, SIGNAL(clicked()), parent, SLOT(SelectAuthors()));
     connect(&demonstration_button, SIGNAL(clicked()), parent, SLOT(SelectDemonstration()));
+    connect(&theory_button, SIGNAL(clicked()), parent, SLOT(SelectTheory()));
 
     layout->addWidget(&project_name);
     layout->addWidget(&box);
