@@ -29,6 +29,8 @@ private:
     QtAverageVelocityPlot av_plot;
     QtVelocityHistogram v_histogram;
     QtDirectionHistogram d_histogram;
+    QtVelocityHistogram global_v_histogram;
+    QtDirectionHistogram global_d_histogram;
     QtWorkPlot w_plot;
     QtFreePathPlot fp_plot;
 

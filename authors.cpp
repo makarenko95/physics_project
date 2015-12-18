@@ -14,12 +14,12 @@ Authors::Authors(QWidget *parent)
     QVBoxLayout * left = new QVBoxLayout;
     QVBoxLayout * right = new QVBoxLayout;
 
-    vova_photo.setPixmap(QPixmap("data/vova.jpg"));
+    vova_photo.setPixmap(QPixmap("data/vova.png"));
     vova_photo.setScaledContents(true);
     vova_photo.setFixedSize(3 * size, 4 * size);
     vova_text.setText("Макаренко Владимир");
 
-    ruslan_photo.setPixmap(QPixmap("data/ruslan.jpg"));
+    ruslan_photo.setPixmap(QPixmap("data/ruslan.png"));
     ruslan_photo.setScaledContents(true);
     ruslan_photo.setFixedSize(3 * size, 4 * size);
     ruslan_text.setText("Габдуллин Руслан");

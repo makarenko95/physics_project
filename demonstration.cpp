@@ -3,6 +3,9 @@
 Demonstration::Demonstration(QWidget *parent):
     QWidget(NULL), controller(&model, &view, parent)
 {
+    d_histogram.SetLocal(false);
+    v_histogram.SetLocal(false);
+
     model.AddView(av_plot);
     model.AddView(v_histogram);
     model.AddView(d_histogram);
@@ -22,6 +25,8 @@ Demonstration::Demonstration(QWidget *parent):
     QScrollArea * plots_scroll = new QScrollArea;
     QHBoxLayout * plots = new QHBoxLayout;
 
+    v_histogram.setFixedSize(400,200);
+    d_histogram.setFixedSize(400,200);
     v_histogram.setFixedSize(400,200);
     d_histogram.setFixedSize(400,200);
     av_plot.setFixedSize(400,200);

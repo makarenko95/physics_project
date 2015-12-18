@@ -49,7 +49,7 @@ void QtBilliardControl::createParticleNumDialog(QGridLayout * layout)
 
     QSpinBox *particleNumSpinBox = new QSpinBox(this);
     particleNumSpinBox->setMaximum(20000);
-    particleNumSpinBox->setMinimum(0);
+    particleNumSpinBox->setMinimum(1);
     particleNumSpinBox->setSingleStep(10);
     particleNumSpinBox->setValue(GetParams().particle_max_count);
     particleNumSpinBox->setFont(QFont("Times", 14, QFont::Normal));

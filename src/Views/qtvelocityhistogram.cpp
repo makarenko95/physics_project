@@ -12,8 +12,9 @@ void QtVelocityHistogram::Initialize()
     plot.yAxis->setLabel("Количество\nчастиц");
     plot.xAxis->setLabel("Модуль скорости");
 
-    bars->setName("По модулю");
-
+    bars->setName("Локальное");
+    if(!local)
+        plot.graph(0)->setName("Общее");
     plot.legend->setVisible(true);
 }
 
@@ -32,6 +33,9 @@ void QtVelocityHistogram::OnUpdate(const BilliardModel & model, double)
         if (v > v_max)
         {
             v_max = v;
+            if(!local)
+                plot.graph(0)->clearData();
+            num_of_iterations = 0;
         }
 
         values.push_back(v);

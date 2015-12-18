@@ -11,8 +11,9 @@ void QtDirectionHistogram::Initialize()
     plot.yAxis->setLabel("Количество\nчастиц");
     plot.xAxis->setLabel("Угол в градусах");
 
-    bars->setName("По углу");
-
+    bars->setName("Локальное");
+    if(!local)
+        plot.graph(0)->setName("Общее");
     plot.legend->setVisible(true);
 }
 

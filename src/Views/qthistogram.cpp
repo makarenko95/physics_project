@@ -1,9 +1,9 @@
 #include "qthistogram.h"
 #include <QHBoxLayout>
 
-QtHistogram::QtHistogram(int step, QWidget *parent)
-    : QWidget(parent), max_max_num(0),
-      bars(NULL), refresh_step(step), elapsed_steps(0)
+QtHistogram::QtHistogram(int step, QWidget *parent, bool l_local)
+    : QWidget(parent),  max_max_num(0), local(l_local),
+      bars(NULL), refresh_step(step), elapsed_steps(0), num_of_iterations(0)
 {
     bars = new QCPBars(plot.xAxis, plot.yAxis);
     plot.addPlottable(bars);
@@ -29,7 +29,19 @@ void QtHistogram::Reload(const BilliardModel &)
 {
     max_max_num = 0;
     elapsed_steps = 0;
+    num_of_iterations = 0;
     Initialize();
+}
+
+void QtHistogram::SetLocal(bool l_local)
+{
+    local = l_local;
+
+    if(!local)
+    {
+        plot.addGraph();
+        plot.graph(0)->setPen(QPen(QColor(255,0,0)));
+    }
 }
 
 void QtHistogram::Update(const BilliardModel & model, double timeStep)
@@ -89,5 +101,16 @@ void QtHistogram::SetData(QVector<double> & v, int num_of_columns)
     plot.yAxis->setRangeLower(0);
 
     bars->setData(key, hist);
+
+    if(!local)
+    {
+        auto data = plot.graph(0)->data();
+        for(int i = 0; i < hist.size(); i++)
+        {
+            hist[i] = (hist[i] + num_of_iterations * data->take(key[i]).value) / (num_of_iterations + 1);
+        }
+        plot.graph(0)->setData(key,hist);
+    }
+    num_of_iterations++;
 }
 
